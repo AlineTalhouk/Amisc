@@ -3,6 +3,7 @@ unitestsCat <- function(fac.dat,fac.var,by,
   #This function works for categoric data only.
   #If not categorical error
   #determine how many categories in by
+
   if(is.factor(fac.dat[,by])){
     p <- length(levels(fac.dat[,by]))
   }else{
