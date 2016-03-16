@@ -1,4 +1,4 @@
-describeBy <- function(data,  var.names, by1, by2=NULL, digits = 3) {
+describeBy <- function (data,  var.names, by1, by2=NULL, digits = 3, Missing=FALSE) {
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
   types <- sapply(var.dat, class)
@@ -37,10 +37,10 @@ describeBy <- function(data,  var.names, by1, by2=NULL, digits = 3) {
   }
 
 if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
- num.raw <- unitestsCont(num.dat, num.var, by1)$raw
- num.formatted <- unitestsCont(num.dat, num.var, by1)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var, by1,digits = 1)$formatted
-final <- rbind(num.formatted, cat.formatted)
+ num.raw <- unitestsCont(num.dat, num.var, by1,showMissing=Missing)$raw
+ num.formatted <- unitestsCont(num.dat, num.var, by1, showMissing=Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var, by1,digits = 1, showMissing=Missing)$formatted
+ final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
  final <- unitestsCont(num.dat, num.var, by1)$formatted
 } else if(is.null(cont.dat)){ #Data is only categorical

@@ -1,5 +1,5 @@
-unitestsCont <- function(num.dat,num.var,by, 
-                         digits=1){
+unitestsCont <- function(num.dat,num.var,by,
+                         digits=1, showMissing){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
 if(is.factor(num.dat[,by])){
@@ -20,7 +20,6 @@ resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
 # Compute Statistical test
  para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,3))
 
-
 final <- matrix(unlist(resCont), byrow=T, ncol=4)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","Median","Missing"))%>%
@@ -28,18 +27,20 @@ final <- matrix(unlist(resCont), byrow=T, ncol=4)%>%
             by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
 
+if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
+
 f.final <- final %>%
   mutate(MeanSD = paste(round(Mean, digits), round(SD, digits),sep = " &#177; ")) %>%
   select(-c(Mean, SD))%>%
-  melt(., id=c("num.var","by"))%>% 
+  melt(., id=c("num.var","by"))%>%
   dcast(., num.var+ relevel(variable,ref = "MeanSD") ~ by)%>%
-  set_colnames(c("Variable", "Levels", levels(final$by)))  
+  set_colnames(c("Variable", "Levels", levels(final$by)))
 
 
 f.final <- f.final[,c("Variable","Levels",levels(num.dat[, by]),"Total")]
 
-f.final$Variable<- ifelse(mod(1:nrow(f.final),3)==1,paste0("**",f.final$Variable,"**"),"")
-f.final$PValue<- ifelse(mod(1:nrow(f.final),3)==1,format(round(para, digits = 3),nsmall = 3),"")
+f.final$Variable<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,paste0("**",f.final$Variable,"**"),"")
+f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,format(round(para, digits = 3),nsmall = 3),"")
 
 return(list(raw=final, formatted=f.final))
 }
