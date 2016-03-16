@@ -23,7 +23,7 @@ resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
 final <- matrix(unlist(resCont), byrow=T, ncol=4)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","Median","Missing"))%>%
- data.frame(num.var=c(sort(rep(num.var,p)),num.var),
+ data.frame(num.var=c(sort(rep(num.label,p)),num.label),
             by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
 
