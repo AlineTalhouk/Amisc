@@ -1,4 +1,4 @@
-describeBy <- function (data,  var.names, by1, by2=NULL, digits = 3, Missing=FALSE) {
+describeBy <- function (data, var.names, var.labels=var.names, by1, by2=NULL, digits = 3, Missing=FALSE) {
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
   types <- sapply(var.dat, class)
@@ -22,6 +22,7 @@ describeBy <- function (data,  var.names, by1, by2=NULL, digits = 3, Missing=FAL
   } else {  # Multiple responses
     if (length(which(num.ind)) > 0) {  # Numeric cases
       num.var <- names(types)[which(num.ind)]
+      num.label <- var.labels[which(num.ind)]
       num.dat <- data.frame(var.dat[, num.var], facets) %>%
         set_colnames(c(num.var, by1, by2))
     } else {
@@ -29,6 +30,7 @@ describeBy <- function (data,  var.names, by1, by2=NULL, digits = 3, Missing=FAL
     }
     if (length(which(fac.ind)) > 0) {  # Factor cases
       fac.var <- names(types)[which(fac.ind)]
+      fac.label <- var.labels[which(fac.ind)]
       fac.dat <- data.frame(var.dat[, fac.var], facets) %>%
         set_colnames(c(fac.var, by1, by2))
     } else {
@@ -37,14 +39,13 @@ describeBy <- function (data,  var.names, by1, by2=NULL, digits = 3, Missing=FAL
   }
 
 if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
- num.raw <- unitestsCont(num.dat, num.var, by1,showMissing=Missing)$raw
- num.formatted <- unitestsCont(num.dat, num.var, by1, showMissing=Missing)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var, by1,digits = 1, showMissing=Missing)$formatted
+ num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, showMissing=Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = 1, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
- final <- unitestsCont(num.dat, num.var, by1)$formatted
+ final <- unitestsCont(num.dat, num.var,num.label, by1)$formatted
 } else if(is.null(cont.dat)){ #Data is only categorical
- final <- unitestsCat(fac.dat, fac.var, by1,digits = 1)$formatted
+ final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = 1)$formatted
 }
 
  return(final)

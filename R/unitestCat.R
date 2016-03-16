@@ -1,4 +1,4 @@
-unitestsCat <- function(fac.dat,fac.var,by,
+unitestsCat <- function(fac.dat,fac.var,fac.label, by,
                          per="col", digits=1, showMissing){
   #This function works for categoric data only.
   #If not categorical error
@@ -13,7 +13,7 @@ unitestsCat <- function(fac.dat,fac.var,by,
   k <- length(fac.var)
 
    # functions used
-  sumStatsCat <- function(x, var, ind, digits) {
+  sumStatsCat <- function(x, var,var.lab, ind, digits) {
     x <- droplevels(x)
     ind <- droplevels(ind)
     count <- table(x,ind,dnn = list(var,by))
@@ -31,7 +31,7 @@ unitestsCat <- function(fac.dat,fac.var,by,
 
     tots <- tots %>%
         as.data.frame%>%
-       cbind(Variable=c(paste0("**",var,"**"),rep("",nrow(.)-1)),Levels=rownames(.),.)%>%
+       cbind(Variable=c(paste0("**",var.lab,"**"),rep("",nrow(.)-1)),Levels=rownames(.),.)%>%
        cbind(., AssociationTest=c(format(round(chisq.test(count)$p.value,3),nsmall=3),
                        rep("",nrow(.)-1)))%>%
        set_rownames(NULL)%>%
@@ -44,7 +44,7 @@ unitestsCat <- function(fac.dat,fac.var,by,
   ind <- fac.dat[, by]
   res=NULL
 for(i in seq_along(fac.var)){
- res<- rbind(res,sumStatsCat(fac.dat[,fac.var[i]], fac.var[i],ind, digits)$tots)
+ res<- rbind(res,sumStatsCat(factor(fac.dat[,fac.var[i]]), fac.var[i],fac.label[i],ind, digits)$tots)
 }
   return(list(formatted=res))
 }

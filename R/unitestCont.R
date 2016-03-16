@@ -1,4 +1,4 @@
-unitestsCont <- function(num.dat,num.var,by,
+unitestsCont <- function(num.dat,num.var,num.label, by,
                          digits=1, showMissing){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
@@ -11,7 +11,7 @@ if(is.factor(num.dat[,by])){
 k <- length(num.var)
 # functions used
 sumStatsCont <- function(x) {
-  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T),Median=median(x,na.rm = T), missing=sum(is.na(x)))}
+  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T),Median=round(median(x,na.rm = T), digits), missing=sum(is.na(x)))}
 
 # Obtain Summary Data
 ind <- num.dat[, by]
