@@ -1,5 +1,5 @@
 unitestsCont <- function(num.dat,num.var,num.label, by,
-                         digits=1, showMissing){
+                         digits=1, showMissing, test.type = "parametric"){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
 if(is.factor(num.dat[,by])){
@@ -18,7 +18,9 @@ ind <- num.dat[, by]
 resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
 
 # Compute Statistical test
- para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,3))
+para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,3))
+nonpara <- apply(num.dat[,num.var], 2, function(x) round(kruskal.test(x ~ ind)$p.value,3))
+test <- ifelse(test.type=="non-parametric", nonpara, para)
 
 final <- matrix(unlist(resCont), byrow=T, ncol=4)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
@@ -40,7 +42,7 @@ f.final <- final %>%
 f.final <- f.final[,c("Variable","Levels",levels(num.dat[, by]),"Total")]
 
 f.final$Variable<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,paste0("**",f.final$Variable,"**"),"")
-f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,format(round(para, digits = 3),nsmall = 3),"")
+f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,format(round(test, digits = 3),nsmall = 3),"")
 
 return(list(raw=final, formatted=f.final))
 }
