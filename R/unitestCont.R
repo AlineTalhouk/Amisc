@@ -11,7 +11,7 @@ if(is.factor(num.dat[,by])){
 k <- length(num.var)
 # functions used
 sumStatsCont <- function(x) {
-  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T),Median=round(median(x,na.rm = T), digits), missing=sum(is.na(x)))}
+  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T),Median=round(median(x,na.rm = T), digits),n=length(!is.na(x)),missing=sum(is.na(x)))}
 
 # Obtain Summary Data
 ind <- num.dat[, by]
@@ -20,12 +20,16 @@ resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
 # Compute Statistical test
 para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,3))
 nonpara <- apply(num.dat[,num.var], 2, function(x) round(kruskal.test(x ~ ind)$p.value,3))
-test <- ifelse(test.type=="non-parametric", nonpara, para)
+if(test.type=="non-parametric"){
+  test <- nonpara
+} else{
+  test <- para
+}
 
-final <- matrix(unlist(resCont), byrow=T, ncol=4)%>%
+final <- matrix(unlist(resCont), byrow=T, ncol=5)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
-  set_colnames(c("Mean","SD","Median","Missing"))%>%
- data.frame(num.var=c(sort(rep(num.label,p)),num.label),
+  set_colnames(c("Mean","SD","Median","N","Missing"))%>%
+  data.frame(num.var=c(rep(num.label,each=p),num.label),
             by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
 
@@ -41,8 +45,8 @@ f.final <- final %>%
 
 f.final <- f.final[,c("Variable","Levels",levels(num.dat[, by]),"Total")]
 
-f.final$Variable<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,paste0("**",f.final$Variable,"**"),"")
-f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,3,2))==1,format(round(test, digits = 3),nsmall = 3),"")
+f.final$Variable<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,4,3))==1,paste0("**",f.final$Variable,"**"),"")
+f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,4,3))==1,format(round(test, digits = 3),nsmall = 3),"")
 
 return(list(raw=final, formatted=f.final))
 }
