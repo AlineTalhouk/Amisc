@@ -11,7 +11,8 @@ if(is.factor(num.dat[,by])){
 k <- length(num.var)
 # functions used
 sumStatsCont <- function(x) {
-  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T),Median=round(median(x,na.rm = T), digits),n=length(!is.na(x)),missing=sum(is.na(x)))}
+  c(Mean= mean(x, na.rm = T), SD=sd(x, na.rm=T), SEM=sd(x, na.rm=T)/sqrt(sum(!is.na(x))), Median=round(median(x,na.rm = T), digits),n=length(!is.na(x)),missing=sum(is.na(x)))}
+
 
 # Obtain Summary Data
 ind <- num.dat[, by]
@@ -26,9 +27,9 @@ if(test.type=="non-parametric"){
   test <- para
 }
 
-final <- matrix(unlist(resCont), byrow=T, ncol=5)%>%
+final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
-  set_colnames(c("Mean","SD","Median","N","Missing"))%>%
+  set_colnames(c("Mean","SD","SEM","Median","N","Missing"))%>%
   data.frame(num.var=c(rep(num.label,each=p),num.label),
             by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
@@ -36,8 +37,8 @@ final <- matrix(unlist(resCont), byrow=T, ncol=5)%>%
 if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
 
 f.final <- final %>%
-  mutate(MeanSD = paste(round(Mean, digits), round(SD, digits),sep = " &#177; ")) %>%
-  select(-c(Mean, SD))%>%
+  mutate(MeanSD = paste(round(Mean, digits), " &#177; ", round(SEM, digits), "; SD:",round(SD, digits), sep = "")) %>%
+  select(-c(Mean, SEM, SD))%>%
   melt(., id=c("num.var","by"))%>%
   dcast(., num.var+ relevel(variable,ref = "MeanSD") ~ by)%>%
   set_colnames(c("Variable", "Levels", levels(final$by)))
