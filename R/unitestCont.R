@@ -37,10 +37,10 @@ final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
 if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
 
 f.final <- final %>%
-  mutate(MeanSD = paste(round(Mean, digits), " &#177; ", round(SEM, digits), "; SD:",round(SD, digits), sep = "")) %>%
+  mutate("Mean (SD)" = paste(round(Mean, digits), " &#177; ", round(SEM, digits), "; (",round(SD, digits),")", sep = "")) %>%
   select(-c(Mean, SEM, SD))%>%
   melt(., id=c("num.var","by"))%>%
-  dcast(., num.var+ relevel(variable,ref = "MeanSD") ~ by)%>%
+  dcast(., num.var+ relevel(variable,ref = "Mean (SD)") ~ by)%>%
   set_colnames(c("Variable", "Levels", levels(final$by)))
 
 
