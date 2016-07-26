@@ -1,5 +1,16 @@
+#' univariable association
+#' 
+#' univariable association
+#' 
+#' univariable association
+#' 
+#' @param some parameters
+#' @return possibly something
+#' @author Aline Talhouk
+#' @export
+#' @examples TODO
 describeBy <- function (data, var.names, var.labels=var.names, by1,
-                        by2=NULL, digits = 3, Missing=FALSE, stats = "parametric") {
+                        by2=NULL, digits = 1, p.digits = 3, Missing=FALSE, stats = "parametric") {
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
   types <- sapply(var.dat, class)
@@ -40,13 +51,13 @@ describeBy <- function (data, var.names, var.labels=var.names, by1,
   }
 
 if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
- num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, showMissing=Missing)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = 1, showMissing=Missing)$formatted
+ num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
- final <- unitestsCont(num.dat, num.var,num.label, by1,digits = 1, showMissing=Missing, test.type = stats)$formatted
+ final <- unitestsCont(num.dat, num.var,num.label, by1,digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
 } else if(is.null(num.dat)){ #Data is only categorical
- final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = 1, showMissing=Missing)$formatted
+ final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
 }
 
  return(final)
