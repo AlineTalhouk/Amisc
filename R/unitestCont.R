@@ -27,11 +27,18 @@ if(test.type=="non-parametric"){
   test <- para
 }
 
+# since the codes below e.g. arrange, melt, dcast will order the 
+# results by num.label, we need to change num.label as a factor
+# and manually set the level so that the order of num.label may 
+# be preserved
+num.label <- factor(num.label, levels=num.label)
+
 final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","SEM","Median","N","Missing"))%>%
-  data.frame(num.var=c(rep(num.label,each=p),num.label),
-            by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
+  data.frame(  
+    num.var=c(rep(num.label,each=p),num.label),
+    by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
 
 if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
@@ -43,11 +50,17 @@ f.final <- final %>%
   dcast(., num.var+ relevel(variable,ref = "Mean (SD)") ~ by)%>%
   set_colnames(c("Variable", "Levels", levels(final$by)))
 
-
 f.final <- f.final[,c("Variable","Levels",levels(num.dat[, by]),"Total")]
 
+# since num.label is a factor, need to put back the actual character name
+final$num.var <- num.label[final$num.var]
+f.final$Variable <- num.label[f.final$Variable]
+
 f.final$Variable<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,4,3))==1,paste0("**",f.final$Variable,"**"),"")
-f.final$PValue<- ifelse(mod(1:nrow(f.final),ifelse(showMissing,4,3))==1,format(round(test, digits = p.digits),nsmall = p.digits),"")
+f.final$PValue<- as.vector(rbind(
+  format(round(test, digits = p.digits),nsmall = p.digits),
+  matrix(rep("",ifelse(showMissing,3,2)*length(test)),ncol=length(test))
+))
 
 return(list(raw=final, formatted=f.final))
 }
