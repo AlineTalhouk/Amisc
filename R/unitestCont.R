@@ -1,4 +1,4 @@
-unitestsCont <- function(num.dat,num.var,num.label, by,
+unitestsCont <- function(num.dat,num.var,num.label, by, dispersion="se",
                          digits=1, p.digits=3, showMissing, test.type = "parametric"){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
@@ -18,6 +18,7 @@ sumStatsCont <- function(x) {
 ind <- num.dat[, by]
 resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
 
+
 # Compute Statistical test
 para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,p.digits))
 nonpara <- apply(num.dat[,num.var], 2, function(x) round(kruskal.test(x ~ ind)$p.value,p.digits))
@@ -27,29 +28,38 @@ if(test.type=="non-parametric"){
   test <- para
 }
 
-# since the codes below e.g. arrange, melt, dcast will order the 
+# since the codes below e.g. arrange, melt, dcast will order the
 # results by num.label, we need to change num.label as a factor
-# and manually set the level so that the order of num.label may 
+# and manually set the level so that the order of num.label may
 # be preserved
 num.label <- factor(num.label, levels=num.label)
 
 final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
   rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","SEM","Median","N","Missing"))%>%
-  data.frame(  
+  data.frame(
     num.var=c(rep(num.label,each=p),num.label),
     by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
   arrange(.,num.var)
 
 if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
 
+if(dispersion=="se"){
 f.final <- final %>%
-  mutate("Mean (SD)" = paste(round(Mean, digits), " &#177; ", round(SEM, digits), " (",round(SD, digits),")", sep = "")) %>%
+  mutate("Mean (se)" = paste(round(Mean, digits), " ("," &#177; ", round(SEM, digits),")", sep = "")) %>%
   select(-c(Mean, SEM, SD))%>%
   melt(., id=c("num.var","by"))%>%
-  dcast(., num.var+ relevel(variable,ref = "Mean (SD)") ~ by)%>%
+  dcast(., num.var+ relevel(variable,ref = "Mean (se)") ~ by)%>%
   set_colnames(c("Variable", "Levels", levels(final$by)))
+} else {
+  f.final <- final %>%
+    mutate("Mean (SD)" = paste(round(Mean, digits), " (", " &#177; ", round(SD, digits),")", sep = "")) %>%
+    select(-c(Mean, SEM, SD))%>%
+    melt(., id=c("num.var","by"))%>%
+    dcast(., num.var+ relevel(variable,ref = "Mean (SD)") ~ by)%>%
+    set_colnames(c("Variable", "Levels", levels(final$by)))
 
+}
 f.final <- f.final[,c("Variable","Levels",levels(num.dat[, by]),"Total")]
 
 # since num.label is a factor, need to put back the actual character name

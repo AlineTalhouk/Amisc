@@ -1,15 +1,15 @@
 #' univariable association
-#' 
+#'
 #' univariable association
-#' 
+#'
 #' univariable association
-#' 
+#'
 #' @param some parameters
 #' @return possibly something
 #' @author Aline Talhouk
 #' @export
 #' @examples TODO
-describeBy <- function (data, var.names, var.labels=var.names, by1,
+describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="se",
                         by2=NULL, digits = 1, p.digits = 3, Missing=FALSE, stats = "parametric") {
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
