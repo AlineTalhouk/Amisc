@@ -51,11 +51,11 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
   }
 
 if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
- num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
+ num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
  cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
- final <- unitestsCont(num.dat, num.var,num.label, by1,digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
+ final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
 } else if(is.null(num.dat)){ #Data is only categorical
  final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
 }
