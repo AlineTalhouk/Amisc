@@ -10,7 +10,10 @@
 #' @export
 #' @examples TODO
 unitestsCat <- function(fac.dat,fac.var,fac.label, by,
-                         per="col", digits=1, p.digits=3, showMissing){
+                         per="col", digits=1, p.digits=3, showMissing, 
+                         simulate.p.value = FALSE, # for chisq.test
+                         B = 2000 # for chisq.test
+                         ){
   #This function works for categoric data only.
   #If not categorical error
   #determine how many categories in by
@@ -43,7 +46,7 @@ unitestsCat <- function(fac.dat,fac.var,fac.label, by,
     tots <- tots %>%
         as.data.frame%>%
        cbind(Variable=c(paste0("**",var.lab,"**"),rep("",nrow(.)-1)),Levels=rownames(.),.)%>%
-       cbind(., AssociationTest=c(format(round(chisq.test(count)$p.value,p.digits),nsmall=p.digits),
+       cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value=simulate.p.value, B=B)$p.value,p.digits),nsmall=p.digits),
                        rep("",nrow(.)-1)))%>%
        set_rownames(NULL)%>%
        set_colnames(c("Variable","Levels",levels(ind),"Total","PValue"))

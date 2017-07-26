@@ -10,7 +10,10 @@
 #' @export
 #' @examples TODO
 describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="se",
-                        by2=NULL, digits = 1, p.digits = 3, Missing=FALSE, stats = "parametric") {
+                        by2=NULL, digits = 1, p.digits = 3, Missing=FALSE, stats = "parametric",
+                        simulate.p.value = FALSE, # for unitestCat; ignore by unitestCont
+                        B = 2000 # for unitestCat; ignore by unitestCont
+                        ) {
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
   types <- sapply(var.dat, class)
@@ -50,16 +53,21 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
     }
   }
 
-if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
+if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous 
  num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value=simulate.p.value, B=B, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
  final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
 } else if(is.null(num.dat)){ #Data is only categorical
- final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
+ final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value=simulate.p.value, B=B, showMissing=Missing)$formatted
 }
 
  return(final)
 }
 
+
+test <- function(a,b,c) {
+  rm(a,envir=environment())
+  print(as.list(environment()))
+}

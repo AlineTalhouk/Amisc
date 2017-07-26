@@ -2,6 +2,7 @@ unitestsCont <- function(num.dat,num.var,num.label, by, dispersion="sd",
                          digits=1, p.digits=3, showMissing, test.type = "parametric"){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
+  
 if(is.factor(num.dat[,by])){
   p <- length(levels(num.dat[,by]))
 }else{
@@ -74,4 +75,3 @@ f.final$PValue<- as.vector(rbind(
 
 return(list(raw=final, formatted=f.final))
 }
-
