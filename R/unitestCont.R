@@ -2,7 +2,7 @@ unitestsCont <- function(num.dat,num.var,num.label, by, dispersion="sd",
                          digits=1, p.digits=3, showMissing, test.type = "parametric"){
 #This function works for numeric data only. If not continuous error
 # determine how many categories in by
-  
+
 if(is.factor(num.dat[,by])){
   p <- length(levels(num.dat[,by]))
 }else{
@@ -17,12 +17,13 @@ sumStatsCont <- function(x) {
 
 # Obtain Summary Data
 ind <- num.dat[, by]
-resCont <- apply(num.dat[,num.var],2, function(x) by(x,ind, sumStatsCont))
+w <- data.frame(num.dat[,num.var])
+resCont <- apply(w, 2, function(x) by(x,ind, sumStatsCont))
 
 
 # Compute Statistical test
-para <- apply(num.dat[,num.var], 2, function(x) round(oneway.test(x ~ ind)$p.value,p.digits))
-nonpara <- apply(num.dat[,num.var], 2, function(x) round(kruskal.test(x ~ ind)$p.value,p.digits))
+para <- apply(w, 2, function(x) round(oneway.test(x ~ ind)$p.value,p.digits))
+nonpara <- apply(w, 2, function(x) round(kruskal.test(x ~ ind)$p.value,p.digits))
 if(test.type=="non-parametric"){
   test <- nonpara
 } else{
@@ -36,7 +37,7 @@ if(test.type=="non-parametric"){
 num.label <- factor(num.label, levels=num.label)
 
 final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
-  rbind(., unname(t(apply(num.dat[,num.var], 2, sumStatsCont))))%>%
+  rbind(., unname(t(apply(w, 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","SEM","Median","N","Missing"))%>%
   data.frame(
     num.var=c(rep(num.label,each=p),num.label),

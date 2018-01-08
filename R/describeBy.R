@@ -23,7 +23,7 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
   if (length(var.names) < 2) {  # Single response
     if (all(num.ind)) {  # Numeric case
       num.var <- var.names
-      num.dat <- cbind(var.dat, facets) %>%
+      num.dat <- data.frame(var.dat, facets) %>%
         set_colnames(c(num.var, by1, by2))
       fac.var <- fac.dat <- NULL
     } else if (all(fac.ind)) {  # Factor case
@@ -53,7 +53,7 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
     }
   }
 
-if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous 
+if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
  num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
  cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value=simulate.p.value, B=B, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
