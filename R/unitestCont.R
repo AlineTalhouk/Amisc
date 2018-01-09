@@ -40,8 +40,8 @@ final <- matrix(unlist(resCont), byrow=T, ncol=6)%>%
   rbind(., unname(t(apply(w, 2, sumStatsCont))))%>%
   set_colnames(c("Mean","SD","SEM","Median","N","Missing"))%>%
   data.frame(
-    num.var=c(rep(num.label,each=p),num.label),
-    by=c(rep(levels(ind),k),rep("Total",k)),.) %>%
+    num.var = c(rep(num.label, each=p), num.label),
+    by = c(rep(levels(ind),k), rep("Total",k)),.) %>%
   arrange(.,num.var)
 
 if(showMissing==FALSE){final <- final[,!names(final)%in%c("Missing")]}
