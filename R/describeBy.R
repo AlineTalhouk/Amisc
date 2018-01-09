@@ -9,25 +9,55 @@
 #' @author Aline Talhouk
 #' @export
 #' @examples TODO
-describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se",
-                        by2 = NULL, digits = 1, p.digits = 3, Missing = FALSE, stats = "parametric",
+
+# Load packages
+
+library(reshape2)
+library(reshape)
+library(dplyr)
+library(magrittr)
+library(DataCombine)
+
+
+describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = ShowTotal,
+                        by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
                         simulate.p.value = FALSE, # for unitestCat; ignore by unitestCont
                         B = 2000 # for unitestCat; ignore by unitestCont
                         ) {
+  # This function takes in a data.frame(df) and returns its descriptives statistics according to a factor in df.
+  #
+  # Args :
+  #   data: A data.frame(df)
+  #   var.names : Selected variables form df that we are interested in
+  #   var.labels: Same as var.names
+  #   by1 : The factor in df for which we want summary statistics
+  #   ShowTotal: When set to be TRUE, it show total number of each factor.
+  #   Missing: It's always set to be TRUE, but the missing ones will be shown only if there is one
+  #
+  # Returns: A summary data.frame summarise descriptives statistics for the input df
+
+  # Take out variables that we are interested in
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
+
+  # Apply class() function to all selected variable.names
   types <- sapply(var.dat, class)
   num.ind <- types %in% c("numeric", "integer")
   fac.ind <- types %in% c("factor", "character")
+
   # Separate numeric and factor components
   if (length(var.names) < 2) {  # Single response
-    if (all(num.ind)) {  # Numeric case
+    if (all(num.ind)) {
+      # If the Single variable is Numeric/Integer
+      # Obtain a data.frame of numerical variables: num.dat and a data.frame of factor variables: fac.dat
       num.var <- var.names
       num.label <- num.var
       num.dat <- data.frame(var.dat, facets) %>%
         set_colnames(c(num.var, by1, by2))
       fac.var <- fac.dat <- NULL
-    } else if (all(fac.ind)) {  # Factor case
+    } else if (all(fac.ind)) {
+      # If the Single variable is Factor/Character
+      # Obtain a data.frame of numerical variables: num.dat and a data.frame of factor variables: fac.dat
       fac.var <- var.names
       fac.dat <- cbind(var.dat, facets) %>%
         set_colnames(c(fac.var, by1, by2))
@@ -35,8 +65,10 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
     } else {
       stop('Variable must be numeric, integer, factor, or character.')
     }
-  } else {  # Multiple responses
-    if (length(which(num.ind)) > 0) {  # Numeric cases
+  } else {
+    # Multiple responses
+    if (length(which(num.ind)) > 0) {
+      # Numeric cases
       num.var <- names(types)[which(num.ind)]
       num.label <- var.labels[which(num.ind)]
       num.dat <- data.frame(var.dat[, num.var], facets) %>%
@@ -44,7 +76,8 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
     } else {
       num.var <- num.dat <- NULL
     }
-    if (length(which(fac.ind)) > 0) {  # Factor cases
+    if (length(which(fac.ind)) > 0) {
+      # Factor cases
       fac.var <- names(types)[which(fac.ind)]
       fac.label <- var.labels[which(fac.ind)]
       fac.dat <- data.frame(var.dat[, fac.var], facets) %>%
@@ -54,14 +87,19 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
     }
   }
 
-if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
- num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
+# We use unitestsCont and/or unitestsCat to obtain statistic summaries
+
+if(!(is.null(fac.dat)|is.null(num.dat))){
+  # Data is a mix of categorical and continuous, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
+ num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal,showMissing = Missing)$formatted
  cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
-} else if(is.null(fac.dat)){ # Data is only continuous
- final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
-} else if(is.null(num.dat)){ #Data is only categorical
- final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing=Missing)$formatted
+} else if(is.null(fac.dat)){
+  # Data is only continuous, then we only apply unitestsCont
+ final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+} else if(is.null(num.dat)){
+  # Data is only categorical, then we only apply unitestsCat
+ final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
 }
 
  return(final)
