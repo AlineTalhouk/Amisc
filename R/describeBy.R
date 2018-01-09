@@ -9,8 +9,8 @@
 #' @author Aline Talhouk
 #' @export
 #' @examples TODO
-describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="se",
-                        by2=NULL, digits = 1, p.digits = 3, Missing=FALSE, stats = "parametric",
+describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se",
+                        by2 = NULL, digits = 1, p.digits = 3, Missing = FALSE, stats = "parametric",
                         simulate.p.value = FALSE, # for unitestCat; ignore by unitestCont
                         B = 2000 # for unitestCat; ignore by unitestCont
                         ) {
@@ -23,6 +23,7 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
   if (length(var.names) < 2) {  # Single response
     if (all(num.ind)) {  # Numeric case
       num.var <- var.names
+      num.label <- num.var
       num.dat <- data.frame(var.dat, facets) %>%
         set_colnames(c(num.var, by1, by2))
       fac.var <- fac.dat <- NULL
@@ -55,12 +56,12 @@ describeBy <- function (data, var.names, var.labels=var.names, by1, dispersion="
 
 if(!(is.null(fac.dat)|is.null(num.dat))){  # Data is a mix of categorical and continuous
  num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value=simulate.p.value, B=B, showMissing=Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing=Missing)$formatted
  final <- rbind(num.formatted, cat.formatted)
 } else if(is.null(fac.dat)){ # Data is only continuous
  final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, showMissing=Missing, test.type = stats)$formatted
 } else if(is.null(num.dat)){ #Data is only categorical
- final <- unitestsCat(fac.dat, fac.var,fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value=simulate.p.value, B=B, showMissing=Missing)$formatted
+ final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing=Missing)$formatted
 }
 
  return(final)
