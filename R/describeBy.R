@@ -8,6 +8,7 @@
 #' @return possibly something
 #' @author Aline Talhouk
 #' @export
+#' @import
 #' @examples TODO
 
 describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = ShowTotal,
