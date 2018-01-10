@@ -10,15 +10,6 @@
 #' @export
 #' @examples TODO
 
-# Load packages
-
-library(reshape2)
-library(reshape)
-library(dplyr)
-library(magrittr)
-library(DataCombine)
-
-
 describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = ShowTotal,
                         by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
                         simulate.p.value = FALSE, # for unitestCat; ignore by unitestCont
