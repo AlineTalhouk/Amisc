@@ -9,8 +9,7 @@ Description: Provides some commonly used utility functions used in
     biostatistics, such as row and column percentages in a table,
     date formatting, survival functions, and more.
 Depends:
-    R (>= 3.2.0)
-Import:
+    R (>= 3.2.0),
     dplyr,
     magrittr,
     tidyr,
