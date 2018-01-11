@@ -51,6 +51,7 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
       # If the Single variable is Factor/Character
       # Obtain a data.frame of numerical variables: num.dat and a data.frame of factor variables: fac.dat
       fac.var <- var.names
+      fac.label <- fac.var
       fac.dat <- data.frame(var.dat, facets) %>%
         set_colnames(c(fac.var, by1, by2))
       num.var <- num.dat <- NULL
@@ -79,26 +80,23 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
     }
   }
 
-  return(fac.dat)
-}
 
 # We use unitestsCont and/or unitestsCat to obtain statistic summaries
 
-# if(!(is.null(fac.dat)|is.null(num.dat))){
+ if(!(is.null(fac.dat)|is.null(num.dat))){
   # Data is a mix of categorical and continuous, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
-# num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal,showMissing = Missing)$formatted
-# cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, ShowTotal = ShowTotal, showMissing = Missing)$formatted
-# final <- rbind(num.formatted, cat.formatted)
-#} else if(is.null(fac.dat)){
+ num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing)$formatted
+ cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
+ final <- list(num.formatted, cat.formatted)
+} else if(is.null(fac.dat)){
   # Data is only continuous, then we only apply unitestsCont
-# final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-#} else if(is.null(num.dat)){
+ final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+} else if(is.null(num.dat)){
   # Data is only categorical, then we only apply unitestsCat
-# final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, ShowTotal = ShowTotal, showMissing = Missing)$formatted
-#}
-
-# return(final)
-#}
+ final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
+}
+  return(final)
+}
 
 
 test <- function(a,b,c) {
