@@ -18,3 +18,5 @@ Depends:
     DataCombine
 License: GPL-2
 RoxygenNote: 5.0.1
+Suggests: 
+    testthat
