@@ -18,7 +18,7 @@ Imports:
     reshape,
     DataCombine
 NAMESPACE:
-    from(magrittr, "%>%")
+    (magrittr, "%>%")
 License: GPL-2
 RoxygenNote: 5.0.1
 Suggests: 
