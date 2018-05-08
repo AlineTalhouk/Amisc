@@ -14,8 +14,8 @@ Imports:
     dplyr,
     magrittr,
     tidyr,
-    reshape2,
     reshape,
+    reshape2,
     DataCombine
 License: GPL-2
 RoxygenNote: 5.0.1
