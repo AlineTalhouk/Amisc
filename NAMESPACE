@@ -2,4 +2,11 @@
 
 export(describeBy)
 export(unitestsCat)
-import("")
+export(unitestsCont)
+import(dplyr)
+import(magrittr)
+import(tidyr)
+import(reshape)
+import(reshape2)
+import(DataCombine)
+
