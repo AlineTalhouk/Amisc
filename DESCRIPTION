@@ -9,16 +9,13 @@ Description: Provides some commonly used utility functions used in
     biostatistics, such as row and column percentages in a table,
     date formatting, survival functions, and more.
 Depends:
-    R (>= 3.2.0)
-Imports:
+    R (>= 3.2.0),
     dplyr,
     magrittr,
     tidyr,
     reshape2,
     reshape,
     DataCombine
-NAMESPACE:
-    (magrittr, "%>%")
 License: GPL-2
 RoxygenNote: 5.0.1
 Suggests: 
