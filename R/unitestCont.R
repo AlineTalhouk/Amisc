@@ -67,10 +67,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       num.var = c(rep(num.label, each=p), num.label),
       by=c(rep(levels(ind), k), rep("", k)), .) %>% arrange(., num.var)
 
-  # If we can not detect any missing element, the "Missing" category will be removed
-  if(sum(final[, "Missing"]) == 0) {
+  # If we can not detect any missing element or we do not require the missing parts, the "Missing" category will be removed
+  if(sum(final[, "Missing"]) == 0 | showMissing == FALSE ) {
     final <- final[, !names(final) %in% c("Missing")]
-    showMissing = FALSE
+    showMissing = FALSE # re-set showMissing == FALSE so that missing elements will not show up
   }
 
   if(dispersion == "se") {
