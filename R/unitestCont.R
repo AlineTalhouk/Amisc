@@ -85,7 +85,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     f.final <- final %>%
       mutate("Mean (SD)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits)," )", sep = "")) %>%
       mutate("Median (IQR)" = paste(round(Mean, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, IQR)) %>%
+      select(-c(Mean, SEM, SD, Median, IQR)) %>%
       melt(., id = c("num.var", "by")) %>%
       dcast(., num.var + relevel(variable, ref = "Mean (SD)") ~ by) %>%
       set_colnames(c("Variable", "Levels", levels(final$by)))
