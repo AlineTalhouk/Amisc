@@ -11,22 +11,22 @@
 #' @import
 #' @examples TODO
 
-describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = ShowTotal,
+describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = TRUE,
                         by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
-                        simulate.p.value = FALSE, # for unitestCat; ignore by unitestCont
-                        B = 2000 # for unitestCat; ignore by unitestCont
-                        ) {
-  # This function takes in a data.frame(df) and returns its descriptives statistics according to a factor in df.
+                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
+                        B = 2000 # Only for unitestCat (Ignored by unitestCont)
+) {
+  # This function takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df.
   #
-  # Args :
-  #   data: A data.frame(df)
-  #   var.names : Selected variables form df that we are interested in
+  # Args:
+  #   data: Input data.frame(df)
+  #   var.names: Variables from df that we are interested in
   #   var.labels: Same as var.names
-  #   by1 : The factor in df for which we want summary statistics
-  #   ShowTotal: When set to be TRUE, it show total number of each factor.
-  #   Missing: It's always set to be TRUE, but the missing ones will be shown only if there is one
+  #   by1 : A selected factor in df
+  #   ShowTotal: When set to be TRUE, it shows the total number of each level w/ by1.
+  #   Missing: It's always set to be TRUE, and the missing ones will be shown only if there is one
   #
-  # Returns: A summary data.frame summarise descriptives statistics for the input df
+  # Returns: A summary data.frame summarise descriptives statistics for the input variables
 
   # Take out variables that we are interested in
   var.dat <- data[, var.names]
@@ -37,11 +37,11 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
   num.ind <- types %in% c("numeric", "integer")
   fac.ind <- types %in% c("factor", "character")
 
-  # Separate numeric and factor components
-  if (length(var.names) < 2) {  # Single response
+  # Separate selected variables into `numeric` and `factor`
+  if (length(var.names) < 2) {  # Single input
     if (all(num.ind)) {
       # If the Single variable is Numeric/Integer
-      # Obtain a data.frame of numerical variables: num.dat and a data.frame of factor variables: fac.dat
+      # Obtain a data.frame of numerical variables: num.dat
       num.var <- var.names
       num.label <- num.var
       num.dat <- data.frame(var.dat, facets) %>%
@@ -49,7 +49,7 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
       fac.var <- fac.dat <- NULL
     } else if (all(fac.ind)) {
       # If the Single variable is Factor/Character
-      # Obtain a data.frame of numerical variables: num.dat and a data.frame of factor variables: fac.dat
+      # Obtain a data.frame of factor variables: fac.dat
       fac.var <- var.names
       fac.label <- fac.var
       fac.dat <- data.frame(var.dat, facets) %>%
@@ -59,7 +59,7 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
       stop('Variable must be numeric, integer, factor, or character.')
     }
   } else {
-    # Multiple responses
+    # Multiple inputs
     if (length(which(num.ind)) > 0) {
       # Numeric cases
       num.var <- names(types)[which(num.ind)]
@@ -79,25 +79,22 @@ describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion
       fac.var <- fac.dat <- NULL
     }
   }
+  # We use unitestsCont and/or unitestsCat to obtain statistic summaries
 
-
-# We use unitestsCont and/or unitestsCat to obtain statistic summaries
-
- if(!(is.null(fac.dat)|is.null(num.dat))){
-  # Data is a mix of categorical and continuous, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
- num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing)$formatted
- cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
- final <- list(num.formatted, cat.formatted)
-} else if(is.null(fac.dat)){
-  # Data is only continuous, then we only apply unitestsCont
- final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-} else if(is.null(num.dat)){
-  # Data is only categorical, then we only apply unitestsCat
- final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
-}
+  if(!(is.null(fac.dat)|is.null(num.dat))) {
+    # Data is a mix of categorical and numerical, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
+    num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing)$formatted
+    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
+    final <- rbind(num.formatted, cat.formatted)
+  } else if(is.null(fac.dat)){
+    # Data is only numerical, then we only apply unitestsCont
+    final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+  } else if(is.null(num.dat)){
+    # Data is only categorical, then we only apply unitestsCat
+    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
+  }
   return(final)
 }
-
 
 test <- function(a,b,c) {
   rm(a,envir=environment())
