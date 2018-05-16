@@ -47,8 +47,10 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     tots <- matrix(paste0(addmargins(count,2),"(", per.col,"%)"), byrow = F, nrow = dim(count)[1]) %>%
       set_rownames(c(levels(x)))
 
-    # Missing cases will only be shown if there is one
-    if(sum(na.r) != 0){tots <- rbind(tots, Missing = na.r)}
+    # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
+    if(sum(na.r) != 0 && showMissing == TRUE) {
+      tots <- rbind(tots, Missing = na.r)
+      }
 
     tots <- tots %>%
       as.data.frame %>%
