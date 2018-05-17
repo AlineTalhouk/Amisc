@@ -76,23 +76,24 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   if(dispersion == "se") {
     f.final <- final %>%
       mutate("Mean (se)" = paste(round(Mean, digits), "( "," &#177; ", round(SEM, digits), " )", sep = "")) %>%
-      mutate("Median (IQR)" = paste(round(Mean, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR)) %>%
-      melt(., id = c("num.var", "by")) %>%
-      dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by) %>%
-      set_colnames(c("Variable", "Levels", levels(final$by)))
-  } else {
+      mutate("Median (IQR)" = paste(round(Median, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      select(-c(Mean, SEM, SD, Median, IQR)) %>% melt(., id = c("num.var", "by")) %>%
+      dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
+    # set colnames
+    colnames(f.final) <- c("Variable", "Levels", levels(final$by))
+    colnames(f.final)[3] <- "Total"
+  } else if (dispersion == "sd") {
     f.final <- final %>%
-      mutate("Mean (SD)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits)," )", sep = "")) %>%
-      mutate("Median (IQR)" = paste(round(Mean, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR)) %>%
-      melt(., id = c("num.var", "by")) %>%
-      dcast(., num.var + relevel(variable, ref = "Mean (SD)") ~ by) %>%
-      set_colnames(c("Variable", "Levels", levels(final$by)))
+      mutate("Mean (sd)" = paste(round(Mean, digits), "( "," &#177; ", round(SEM, digits), " )", sep = "")) %>%
+      mutate("Median (IQR)" = paste(round(Median, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      select(-c(Mean, SEM, SD, Median, IQR)) %>% melt(., id = c("num.var", "by")) %>%
+      dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
+    # set colnames
+    colnames(f.final) <- c("Variable", "Levels", levels(final$by))
+    colnames(f.final)[3] <- "Total"
+  } else {
+    warning("dispersion should be either sd or se")
   }
-
-
-  f.final <- f.final[, c("Variable","Levels", levels(num.dat[, by]))]
 
 
   # Since num.label is a factor, we put back the actual character name
@@ -105,15 +106,32 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   if(ShowTotal == TRUE){
     # If we would like to see the total numbers
     f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+    if(length(num.dat[, by]) > sum(TotCount)) {
+      MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
+      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with", MissingNumber, "class missing"), TotCount))
+    } else {
+      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with no class missing"), TotCount))
+    }
 
-    f.final$Total <- rep("", ncol = ncol(f.final)) # Add `Total` column
-    Row.Insert <- c("", "N", c(TotCount, sum(TotCount)))
     f.final <- InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
-    f.final$PValue <- as.vector(c("", rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test)))))
+
+    if(test.type == "Non-parametric") {
+      f.final$Kruskal_Wallis_PValue <- as.vector(c("", rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test)))))
+    } else if(test.type == "Parametric") {
+      f.final$OneWay_Test_PValue <- as.vector(c("", rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test)))))
+    } else {
+      warning("test.type should be either Non-parametric or Parametric")
+    }
   } else{
-    f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    if(test.type == "Non-parametric") {
+      f.final$Kruskal_Wallis_PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else if(test.type == "Parametric") {
+      f.final$OneWay_Test_PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else {
+      print(warning("test.type should be either Non-parametric or Parametric"))
+    }
   }
 
   return(list(raw = final, formatted = f.final))
-
 }
+
