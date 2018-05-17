@@ -8,7 +8,7 @@
 #' @return possibly something
 #' @author Aline Talhouk
 #' @export
-#' @import
+#' @import tidyr
 #' @importFrom tidyr extract
 #' @examples TODO
 
