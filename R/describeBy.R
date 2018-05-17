@@ -9,6 +9,7 @@
 #' @author Aline Talhouk
 #' @export
 #' @import
+#' @importFrom (tidyr, extract), (reshape, expand)
 #' @examples TODO
 
 describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = TRUE,

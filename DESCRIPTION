@@ -13,12 +13,10 @@ Depends:
 Imports:
     dplyr,
     magrittr,
-    (tidyr, extract),
+    tidyr,
     reshape,
     reshape2,
     DataCombine
-NAMESPACE:
-    importFrom(tidyr, extract)
 License: GPL-2
 RoxygenNote: 6.0.1
 Suggests: 
