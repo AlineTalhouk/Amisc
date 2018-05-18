@@ -56,7 +56,6 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # and manually set the level so that the order of num.label may
   # be preserved
 
-
   num.label <- factor(num.label, levels = num.label)
   k <- length(num.var) # Total number of numerical variables
 
@@ -95,7 +94,6 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     warning("dispersion should be either sd or se")
   }
 
-
   # Since num.label is a factor, we put back the actual character name
   final$num.var <- num.label[final$num.var]
 
@@ -105,33 +103,31 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if(ShowTotal == TRUE){
     # If we would like to see the total numbers
+      if(test.type == "non-parametric") {
+      f.final$PValue <- as.vector(rbind(format(paste("Kruskal_Wallis", as.character(round(test, digits = p.digits))), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else if(test.type == "parametric") {
+      f.final$PValue <- as.vector(rbind(format(paste("OneWay_Test", as.character(round(test, digits = p.digits))), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else {
+      print(warning("test.type should be either non-parametric or parametric"))
+    }
+    # Add the total number
     f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
     if(length(num.dat[, by]) > sum(TotCount)) {
       MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
-      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with", MissingNumber, "class missing"), TotCount))
+      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with", MissingNumber, "class missing"), TotCount, ""))
     } else {
-      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with no class missing"), TotCount))
+      Row.Insert <- c("", "N", c(paste(length(num.dat[, by]), "with no class missing"), TotCount), "")
     }
-
     f.final <- InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
-
-    if(test.type == "Non-parametric") {
-      f.final$Kruskal_Wallis_PValue <- as.vector(c("", rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test)))))
-    } else if(test.type == "Parametric") {
-      f.final$OneWay_Test_PValue <- as.vector(c("", rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test)))))
+  } else {
+    if(test.type == "non-parametric") {
+      f.final$PValue <- as.vector(rbind(format(paste("Kruskal_Wallis", as.character(round(test, digits = p.digits))), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else if(test.type == "parametric") {
+      f.final$PValue <- as.vector(rbind(format(paste("OneWay_Test", as.character(round(test, digits = p.digits))), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
     } else {
-      warning("test.type should be either Non-parametric or Parametric")
-    }
-  } else{
-    if(test.type == "Non-parametric") {
-      f.final$Kruskal_Wallis_PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
-    } else if(test.type == "Parametric") {
-      f.final$OneWay_Test_PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
-    } else {
-      print(warning("test.type should be either Non-parametric or Parametric"))
+      print(warning("test.type should be either non-parametric or parametric"))
     }
   }
 
   return(list(raw = final, formatted = f.final))
 }
-
