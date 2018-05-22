@@ -54,7 +54,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     tots <- tots %>%
       as.data.frame %>%
       cbind(Variable=c(paste0("**",var.lab,"**"), rep("",nrow(.)-1)), Levels=rownames(.),.) %>%
-      cbind(., AssociationTest=c(format(paste("PearsonChi_squared", as.character(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits))), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>%
+      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>%
       mutate_all(as.character)
     return(list(count=count,tots=tots))
   }
