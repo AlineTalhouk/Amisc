@@ -51,13 +51,12 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
       tots <- rbind(tots, Missing = na.r)
     }
     # re-arrange the matrix so that it will be able to rbind with continuous part
-    rowname <- rownames(tots)
+    tot.rowname <- rownames(tots)
     tots <- tots[, c(ncol(tots), 1: ncol(tots) - 1)]
 
-    tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = rowname) %>%
+    tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = tot.rowname) %>%
       cbind(Variable=c(paste0("**",var.lab,"**"), rep("",nrow(.)-1)), Levels=rownames(.),.) %>%
-      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1)))
-    %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue"))  %>% mutate_all(as.character)
+      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>% mutate_all(as.character)
 
     return(list(count=count,tots=tots))
   }
