@@ -45,17 +45,20 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
 
     tots <- matrix(paste0(addmargins(count, 2),"(", per.col,"%)"), byrow = F, nrow = dim(count)[1]) %>%
       set_rownames(c(levels(x)))
+
     # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
     if(sum(na.r) != 0 && showMissing == TRUE) {
       tots <- rbind(tots, Missing = na.r)
     }
     # re-arrange the matrix so that it will be able to rbind with continuous part
-    tots <- tots[, c(4, 1, 2, 3)]
-    tots <- tots %>%
-      as.data.frame %>%
+    rowname <- rownames(tots)
+    tots <- tots[, c(ncol(tots), 1: ncol(tots) - 1)]
+
+    tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = rowname) %>%
       cbind(Variable=c(paste0("**",var.lab,"**"), rep("",nrow(.)-1)), Levels=rownames(.),.) %>%
-      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>%
-      mutate_all(as.character)
+      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1)))
+    %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue"))  %>% mutate_all(as.character)
+
     return(list(count=count,tots=tots))
   }
   # Obtain Summary Data
@@ -64,6 +67,5 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   for(i in seq_along(fac.var)){
     res<- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits)$tots)
   }
-
   return(list(formatted=res))
 }
