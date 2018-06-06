@@ -31,7 +31,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   if(is.factor(fac.dat[, by])){
     p <- length(levels(fac.dat[, by]))
   }else{
-    stop('by variable must be factor')
+    stop('Arguement By must be factor')
   }
 
   # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
@@ -57,6 +57,8 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = tot.rowname) %>%
       cbind(Variable=c(paste0("**",var.lab,"**"), rep("",nrow(.)-1)), Levels=rownames(.),.) %>%
       cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>% mutate_all(as.character)
+
+    tots <- tots[, c(1, 2, 4:(ncol(tots)-1), 3, ncol(tots))] # re-arrange columns for the sake of output layout
 
     return(list(count=count,tots=tots))
   }
