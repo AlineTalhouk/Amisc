@@ -121,7 +121,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       if(length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "Kruskal_Wallis"))
-        warning(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
+        print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
         Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "Kruskal_Wallis")
       }
@@ -132,7 +132,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       if(length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "OneWay_Test"))
-        warning(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
+        print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
         Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "OneWay_Test")
       }
