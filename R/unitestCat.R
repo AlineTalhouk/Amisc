@@ -31,7 +31,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   if(is.factor(fac.dat[, by])){
     p <- length(levels(fac.dat[, by]))
   }else{
-    stop('Arguement By must be factor')
+    stop('Argument By must be factor')
   }
 
   # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest

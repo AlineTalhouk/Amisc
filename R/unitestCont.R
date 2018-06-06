@@ -20,7 +20,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     # Obtain number of distinct elements in the factor
     p <- length(levels(num.dat[, by]))
   } else {
-    stop('Arguement By must be factor')
+    stop('Argument By must be factor')
   }
 
   # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
@@ -120,9 +120,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if(length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
-        Row.Insert <- c("", "N", TotCount, c(paste(length(num.dat[, by]), "with", MissingNumber, "class missing"), "Kruskal_Wallis"))
+        Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "Kruskal_Wallis"))
+        warning(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
-        Row.Insert <- c("", "N", c(TotCount, paste(length(num.dat[, by]), "with no class missing")), "Kruskal_Wallis")
+        Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "Kruskal_Wallis")
       }
     } else if(test.type == "parametric") {
       f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
@@ -130,9 +131,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if(length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
-        Row.Insert <- c("", "N", TotCount, c(paste(length(num.dat[, by]), "with", MissingNumber, "class missing"), "OneWay_Test"))
+        Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "OneWay_Test"))
+        warning(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
-        Row.Insert <- c("", "N", c(TotCount, paste(length(num.dat[, by]), "with no class missing")), "OneWay_Test")
+        Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "OneWay_Test")
       }
     } else {
       stop("test.type should be either non-parametric or parametric")
