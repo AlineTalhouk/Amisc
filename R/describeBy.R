@@ -1,23 +1,24 @@
-#' univariable association
+#' Descriptive statistics
+#'
+#'takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
 #'
 #' univariable association
 #'
-#' univariable association
-#'
-#' @param some parameters
+#' @param data: Input data.frame(df)
+#' @param
 #' @return possibly something
 #' @author Aline Talhouk
 #' @export
 #' @import
 #' @examples TODO
 
-describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="sd", ShowTotal = TRUE,
-                        by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
-                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
-                        B = 2000 # Only for unitestCat (Ignored by unitestCont)
+describeBy <- function (data, var.names, var.labels = var.names, by1,
+                        dispersion="sd", ShowTotal = TRUE,
+                        by2 = NULL, digits = 1, p.digits = 3,
+                        Missing = TRUE, stats = "parametric",
+                        simulate.p.value = FALSE,
+                        B = 2000
 ) {
-  # This function takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df.
-  #
   # Args:
   #   data: Input data.frame(df)
   #   var.names: Variables from df that we are interested in

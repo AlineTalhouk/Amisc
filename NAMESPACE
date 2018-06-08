@@ -2,10 +2,4 @@
 
 export(describeBy)
 export(unitestsCat)
-export(unitestsCont)
-importFrom(tidyr, extract)
-importFrom(reshape, expand)
-importFrom(reshape, rename)
-importFrom(reshape2, recast)
-importFrom(reshape2, melt)
-importFrom(reshape2, colsplit)
+import("")
