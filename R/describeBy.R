@@ -11,7 +11,7 @@
 #' @import
 #' @examples TODO
 
-describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="se", ShowTotal = TRUE,
+describeBy <- function (data, var.names, var.labels = var.names, by1, dispersion="sd", ShowTotal = TRUE,
                         by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
                         simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
                         B = 2000 # Only for unitestCat (Ignored by unitestCont)
