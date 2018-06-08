@@ -91,7 +91,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   } else if (dispersion == "sd") {
     f.final <- final %>%
       mutate("Median (IQR)" = paste(round(Median, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      mutate("Mean (sd)" = paste(round(Mean, digits), "( "," &#177; ", round(SEM, digits), " )", sep = "")) %>%
+      mutate("Mean (sd)" = paste(round(Mean, digits), "( "," &#177; ", round(SD, digits), " )", sep = "")) %>%
       select(-c(Mean, SEM, SD, Median, IQR))
     if(showMissing == TRUE){
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
