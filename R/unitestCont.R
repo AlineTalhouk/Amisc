@@ -81,7 +81,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
-    f.final <- f.final %>% melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
+    f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
 
     # set colnames
     colnames(f.final) <- c("Variable", "Levels", levels(final$by))
@@ -97,7 +97,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
-    f.final <- f.final %>% melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
+    f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
 
     # set colnames
     colnames(f.final) <- c("Variable", "Levels", levels(final$by))
@@ -140,7 +140,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       stop("test.type should be either non-parametric or parametric")
     }
 
-    f.final <- InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
+    f.final <- DataCombine::InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
   } else {
     if(test.type == "non-parametric") {
       f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
