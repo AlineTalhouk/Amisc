@@ -9,11 +9,12 @@
 #' @author Aline Talhouk
 #' @export
 #' @examples TODO
+
 unitestsCat <- function(fac.dat, fac.var, fac.label, by,
-                        per="col", digits=1, p.digits=3, showMissing,
+                        per = "col", digits = 1, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, # for chisq.test
                         B = 2000 # for chisq.test
-){
+) {
   # This function takes a data.frame(fac.dat) of categorical columns as well as a factor column, and returns a statistical summary of df based on the factor column in fac.dat
   #
   # Args:
@@ -28,10 +29,10 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   # Returns: A list summary data.frame summarises descriptives statistics for the input data.frame(fac.dat)
 
 
-  if(is.factor(fac.dat[, by])){
+  if (is.factor(fac.dat[, by])) {
     p <- length(levels(fac.dat[, by]))
-  }else{
-    stop('Argument By must be factor')
+  } else {
+    stop("by variable must be factor")
   }
 
   # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
@@ -39,34 +40,37 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     x <- droplevels(x) # drop unused levels from a factor
     ind <- droplevels(ind)
     count <- table(x, ind, dnn = list(var, by))
-    na.r <- addmargins(table(x,ind, useNA = "always"))[length(levels(x)) + 1, -p-1]
-    per.row <- prop.table(count, margin =1)
-    per.col <- round(prop.table(addmargins(count,2), margin = 2)*100, digits)
+    na.r <- addmargins(table(x, ind, useNA = "always"))[length(levels(x)) + 1, -p - 1]
+    per.row <- prop.table(count, margin = 1)
+    per.col <- round(prop.table(addmargins(count, 2), margin = 2) * 100, digits)
 
-    tots <- matrix(paste0(addmargins(count, 2),"(", per.col,"%)"), byrow = F, nrow = dim(count)[1]) %>%
+    tots <- matrix(paste0(addmargins(count, 2), "(", per.col, "%)"), byrow = F, nrow = dim(count)[1]) %>%
       set_rownames(c(levels(x)))
 
     # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
-    if(sum(na.r) != 0 && showMissing == TRUE) {
+    if (sum(na.r) != 0 && showMissing == TRUE) {
       tots <- rbind(tots, Missing = na.r)
     }
     # re-arrange the matrix so that it will be able to rbind with continuous part
     tot.rowname <- rownames(tots)
-    tots <- tots[, c(ncol(tots), 1: ncol(tots) - 1)]
+    tots <- tots[, c(ncol(tots), 1:ncol(tots) - 1)]
 
     tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = tot.rowname) %>%
-      cbind(Variable=c(paste0("**",var.lab,"**"), rep("",nrow(.)-1)), Levels=rownames(.),.) %>%
-      cbind(., AssociationTest=c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.)-1))) %>% set_rownames(NULL) %>% set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>% mutate_all(as.character)
+      cbind(Variable = c(paste0("**", var.lab, "**"), rep("", nrow(.) - 1)), Levels = rownames(.), .) %>%
+      cbind(., AssociationTest = c(format(round(chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.) - 1))) %>%
+      set_rownames(NULL) %>%
+      set_colnames(c("Variable", "Levels", "Total", levels(ind), "PValue")) %>%
+      mutate_all(as.character)
 
-    tots <- tots[, c(1, 2, 4:(ncol(tots)-1), 3, ncol(tots))] # re-arrange columns for the sake of output layout
+    tots <- tots[, c(1, 2, 4:(ncol(tots) - 1), 3, ncol(tots))] # re-arrange columns for the sake of output layout
 
-    return(list(count=count,tots=tots))
+    return(list(count = count, tots = tots))
   }
   # Obtain Summary Data
   ind <- fac.dat[, by]
-  res = NULL
-  for(i in seq_along(fac.var)){
-    res<- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits)$tots)
+  res <- NULL
+  for (i in seq_along(fac.var)) {
+    res <- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits)$tots)
   }
-  return(list(formatted=res))
+  return(list(formatted = res))
 }

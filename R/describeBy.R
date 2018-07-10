@@ -1,6 +1,6 @@
 #' Descriptive statistics
 #'
-#'takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
+#' takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
 #'
 #' univariable association
 #'
@@ -12,13 +12,13 @@
 #' @import
 #' @examples TODO
 
-describeBy <- function (data, var.names, var.labels = var.names, by1,
-                        dispersion="sd", ShowTotal = TRUE,
-                        by2 = NULL, digits = 1, p.digits = 3,
-                        Missing = TRUE, stats = "parametric",
-                        simulate.p.value = FALSE,
-                        B = 2000
+describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
+                       by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
+                       simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
+                       B = 2000 # Only for unitestCat (Ignored by unitestCont)
 ) {
+  # This function takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df.
+  #
   # Args:
   #   data: Input data.frame(df)
   #   var.names: Variables from df that we are interested in
@@ -39,7 +39,7 @@ describeBy <- function (data, var.names, var.labels = var.names, by1,
   fac.ind <- types %in% c("factor", "character")
 
   # Separate selected variables into `numeric` and `factor`
-  if (length(var.names) < 2) {  # Single input
+  if (length(var.names) < 2) { # Single input
     if (all(num.ind)) {
       # If the Single variable is Numeric/Integer
       # Obtain a data.frame of numerical variables: num.dat
@@ -57,7 +57,7 @@ describeBy <- function (data, var.names, var.labels = var.names, by1,
         set_colnames(c(fac.var, by1, by2))
       num.var <- num.dat <- NULL
     } else {
-      stop('Variable must be numeric, integer, factor, or character.')
+      stop("Variable must be numeric, integer, factor, or character.")
     }
   } else {
     # Multiple inputs
@@ -82,28 +82,28 @@ describeBy <- function (data, var.names, var.labels = var.names, by1,
   }
   # We use unitestsCont and/or unitestsCat to obtain statistic summaries
 
-  if(!(is.null(fac.dat)|is.null(num.dat))) {
+  if (!(is.null(fac.dat) | is.null(num.dat))) {
     # Data is a mix of categorical and numerical, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
-    num.formatted <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
-    row <- c(rep("", ncol(cat.formatted) -1), "PearsonChi_square")
+    num.formatted <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    row <- c(rep("", ncol(cat.formatted) - 1), "PearsonChi_square")
     cat.formatted <- rbind(row, cat.formatted)
 
     final <- rbind(num.formatted, cat.formatted)
-  } else if(is.null(fac.dat)){
+  } else if (is.null(fac.dat)) {
     # Data is only numerical, then we only apply unitestsCont
-    final <- unitestsCont(num.dat, num.var,num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-  } else if(is.null(num.dat)){
+    final <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+  } else if (is.null(num.dat)) {
     # Data is only categorical, then we only apply unitestsCat
-    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B=B, showMissing = Missing)$formatted
-    row <- c(rep("", ncol(final) -1), "PearsonChi_square")
+    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    row <- c(rep("", ncol(final) - 1), "PearsonChi_square")
     final <- rbind(row, final)
   }
   return(final)
 }
 
 # test
-test <- function(a,b,c) {
-  rm(a,envir=environment())
+test <- function(a, b, c) {
+  rm(a, envir = environment())
   print(as.list(environment()))
 }
