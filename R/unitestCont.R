@@ -16,17 +16,19 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
 
   # Verify `by` in num.dat is factor
-  if(is.factor(num.dat[, by])) {
+  if (is.factor(num.dat[, by])) {
     # Obtain number of distinct elements in the factor
     p <- length(levels(num.dat[, by]))
   } else {
-    stop('Argument By must be factor')
+    stop("Argument By must be factor")
   }
 
   # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
   sumStatsCont <- function(x) {
-    c(Mean = mean(x, na.rm = T), SD = sd(x, na.rm=T), SEM=sd(x, na.rm=T)/sqrt(sum(!is.na(x))), Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
-      missing = sum(is.na(x)))
+    c(
+      Mean = mean(x, na.rm = T), SD = sd(x, na.rm = T), SEM = sd(x, na.rm = T) / sqrt(sum(!is.na(x))), Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
+      missing = sum(is.na(x))
+    )
   }
   # A function used to count Total Number
   CountTotal <- function(x) {
@@ -36,16 +38,22 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Obtain Summary Data
   ind <- num.dat[, by]
   w <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(w, 2, function(x) by(x,ind, sumStatsCont))
+  resCont <- apply(w, 2, function(x) by(x, ind, sumStatsCont))
   TotCount <- apply(w, 2, function(x) by(x, ind, CountTotal))[, 1] # Count the total number of each level w/ factor
+
+
+  # print(list(resCont, TotCount))
+
+
+
 
 
   # Compute Statistical test and obtain the p-value
 
-  if(test.type == "non-parametric"){
+  if (test.type == "non-parametric") {
     # Kruskal-Wallis Test
     test <- apply(w, 2, function(x) round(kruskal.test(x ~ ind)$p.value, p.digits))
-  } else{
+  } else {
     # Oneway.test : lhs ~ rhs, lhs gives sample vaules and rhs gives corresponding group(factor)
     test <- apply(w, 2, function(x) round(oneway.test(x ~ ind)$p.value, p.digits))
   }
@@ -62,22 +70,25 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     rbind(., unname(t(apply(w, 2, sumStatsCont)))) %>%
     set_colnames(c("Mean", "SD", "SEM", "Median", "IQR", "Missing")) %>%
     data.frame(
-      num.var = c(rep(num.label, each=p), num.label),
-      by=c(rep(levels(ind), k), rep("", k)), .) %>% arrange(., num.var)
+      num.var = c(rep(num.label, each = p), num.label),
+      by = c(rep(levels(ind), k), rep("", k)), .
+    ) %>%
+    arrange(., num.var)
 
+  # print(final)
 
   # If we can not detect any missing element or we do not require the missing parts, the "Missing" category will be removed
-  if(sum(final[, "Missing"]) == 0 | showMissing == FALSE ) {
+  if (sum(final[, "Missing"]) == 0 | showMissing == FALSE) {
     final <- final[, !names(final) %in% c("Missing")]
-    showMissing = FALSE # re-set showMissing == FALSE so that missing elements will not show up
+    showMissing <- FALSE # re-set showMissing == FALSE so that missing elements will not show up
   }
 
-  if(dispersion == "se") {
+  if (dispersion == "se") {
     f.final <- final %>%
-      mutate("Mean (se)" = paste(round(Mean, digits), "( "," &#177; ", round(SEM, digits), " )", sep = "")) %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      mutate("Mean (se)" = paste(round(Mean, digits), "( ", " &#177; ", round(SEM, digits), " )", sep = "")) %>%
+      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
       select(-c(Mean, SEM, SD, Median, IQR))
-    if(showMissing == TRUE){
+    if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
@@ -85,15 +96,14 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
     # set colnames
     colnames(f.final) <- c("Variable", "Levels", levels(final$by))
-    f.final <- f.final[, c(1, 2, 4: ncol(f.final), 3)] # rearrange colnames for the sake of output layout
+    f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
-
   } else if (dispersion == "sd") {
     f.final <- final %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( "," &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      mutate("Mean (sd)" = paste(round(Mean, digits), "( "," &#177; ", round(SD, digits), " )", sep = "")) %>%
+      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      mutate("Mean (sd)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits), " )", sep = "")) %>%
       select(-c(Mean, SEM, SD, Median, IQR))
-    if(showMissing == TRUE){
+    if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
@@ -101,35 +111,37 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
     # set colnames
     colnames(f.final) <- c("Variable", "Levels", levels(final$by))
-    f.final <- f.final[, c(1, 2, 4: ncol(f.final), 3)] # rearrange colnames for the sake of output layout
+    f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
   } else {
     stop("dispersion should be either sd or se")
   }
 
+  # print(f.final)
+
   # Since num.label is a factor, we put back the actual character name
   final$num.var <- num.label[final$num.var]
   f.final$Variable <- num.label[f.final$Variable]
-  f.final$Variable <- ifelse(mod(1: nrow(f.final), ifelse(showMissing, 3, 2)) == 1, paste0("**", f.final$Variable, "**"), "")
+  f.final$Variable <- ifelse(mod(1:nrow(f.final), ifelse(showMissing, 3, 2)) == 1, paste0("**", f.final$Variable, "**"), "")
 
-  if(ShowTotal == TRUE){
+  if (ShowTotal == TRUE) {
     # If we would like to see the total numbers
-    if(test.type == "non-parametric") {
-      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    if (test.type == "non-parametric") {
+      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if(length(num.dat[, by]) > sum(TotCount)) {
+      if (length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "Kruskal_Wallis"))
         print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
         Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "Kruskal_Wallis")
       }
-    } else if(test.type == "parametric") {
-      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else if (test.type == "parametric") {
+      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if(length(num.dat[, by]) > sum(TotCount)) {
+      if (length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "OneWay_Test"))
         print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
@@ -142,11 +154,11 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
     f.final <- DataCombine::InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
   } else {
-    if(test.type == "non-parametric") {
-      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    if (test.type == "non-parametric") {
+      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       Row.Insert <- c("", "N", "", "", "Kruskal_Wallis")
-    } else if(test.type == "parametric") {
-      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1)*length(test)), ncol = length(test))))
+    } else if (test.type == "parametric") {
+      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       Row.Insert <- c("", "N", "", "", "OneWay_Test")
     } else {
       stop("test.type should be either non-parametric or parametric")
