@@ -10,7 +10,9 @@ You can install Amisc from GitHub with:
 
 
 ``` r
-# install.packages("devtools")
+if(!"devtools" %in% installed.packages()[, "Package"]){
+  install.packages("devtools")
+  }
 devtools::install_github("AlineTalhouk/Amisc")
 ```
 
