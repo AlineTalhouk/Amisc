@@ -18,7 +18,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Verify `by` in num.dat is factor
   if (is.factor(num.dat[, by])) {
     # Obtain number of distinct elements in the factor
-    p <- length(levels(num.dat[, by]))
+    level_num <- nlevels(num.dat[, by])
   } else {
     stop("Argument By must be factor")
   }
@@ -26,7 +26,8 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
   sumStatsCont <- function(x) {
     c(
-      Mean = mean(x, na.rm = T), SD = sd(x, na.rm = T), SEM = sd(x, na.rm = T) / sqrt(sum(!is.na(x))), Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
+      Mean = mean(x, na.rm = T), SD = sd(x, na.rm = T), SEM = sd(x, na.rm = T) / sqrt(sum(!is.na(x))),
+      Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
       missing = sum(is.na(x))
     )
   }
@@ -37,9 +38,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   # Obtain Summary Data
   ind <- num.dat[, by]
-  w <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(w, 2, function(x) by(x, ind, sumStatsCont))
-  TotCount <- apply(w, 2, function(x) by(x, ind, CountTotal))[, 1] # Count the total number of each level w/ factor
+  selected_df <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
+  resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont))
+  TotCount <- apply(selected_df, 2, function(x) by(x, ind, CountTotal))[, 1] # Count the total number of each level w/ factor
 
 
   # print(list(resCont, TotCount))
@@ -52,10 +53,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if (test.type == "non-parametric") {
     # Kruskal-Wallis Test
-    test <- apply(w, 2, function(x) round(kruskal.test(x ~ ind)$p.value, p.digits))
+    test <- apply(selected_df, 2, function(x) round(kruskal.test(x ~ ind)$p.value, p.digits))
   } else {
     # Oneway.test : lhs ~ rhs, lhs gives sample vaules and rhs gives corresponding group(factor)
-    test <- apply(w, 2, function(x) round(oneway.test(x ~ ind)$p.value, p.digits))
+    test <- apply(selected_df, 2, function(x) round(oneway.test(x ~ ind)$p.value, p.digits))
   }
 
   # Since the codes below e.g. arrange, melt, dcast will order the
@@ -64,14 +65,14 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # be preserved
 
   num.label <- factor(num.label, levels = num.label)
-  k <- length(num.var) # Total number of numerical variables
+  tot_num <- length(num.var) # Total number of numerical variables
 
   final <- matrix(unlist(resCont), byrow = T, ncol = 6) %>%
-    rbind(., unname(t(apply(w, 2, sumStatsCont)))) %>%
+    rbind(., unname(t(apply(selected_df, 2, sumStatsCont)))) %>%
     set_colnames(c("Mean", "SD", "SEM", "Median", "IQR", "Missing")) %>%
     data.frame(
-      num.var = c(rep(num.label, each = p), num.label),
-      by = c(rep(levels(ind), k), rep("", k)), .
+      num.var = c(rep(num.label, each = level_num), num.label),
+      by = c(rep(levels(ind), tot_num), rep("", tot_num)), .
     ) %>%
     arrange(., num.var)
 

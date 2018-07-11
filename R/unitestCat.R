@@ -30,7 +30,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
 
 
   if (is.factor(fac.dat[, by])) {
-    p <- length(levels(fac.dat[, by]))
+    p <- nlevels(fac.dat[, by])
   } else {
     stop("by variable must be factor")
   }
@@ -40,7 +40,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     x <- droplevels(x) # drop unused levels from a factor
     ind <- droplevels(ind)
     count <- table(x, ind, dnn = list(var, by))
-    na.r <- addmargins(table(x, ind, useNA = "always"))[length(levels(x)) + 1, -p - 1]
+    na.r <- addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -p - 1]
     per.row <- prop.table(count, margin = 1)
     per.col <- round(prop.table(addmargins(count, 2), margin = 2) * 100, digits)
 
