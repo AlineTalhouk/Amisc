@@ -37,7 +37,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   selected_df <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
   resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont))
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
-  ind_names <- c("", attributes(TotCount)$dimnames$ind) # a vector all level names, the empty string is added in the front to make sure it fits the final output table
+  ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
   # Compute Statistical test and obtain the p-value
   if (test.type == "non-parametric") {
@@ -83,9 +83,14 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
 
     # set colnames
-    colnames(f.final) <- c("Variable", "Levels", ind_names)
+    colnames(f.final)[1: 2] <- c("Variable", "Levels")
     f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
+
+    total_count <- c()
+    for(i in 3: ncol(f.final)) {
+        total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    }
   } else if (dispersion == "sd") {
     f.final <- final %>%
       mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
@@ -96,11 +101,16 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
     f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
-
+    
     # set colnames
-    colnames(f.final) <- c("Variable", "Levels", ind_names)
+    colnames(f.final)[1: 2] <- c("Variable", "Levels")
     f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
+
+    total_count <- c()
+    for(i in 3: ncol(f.final)) {
+        total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    }
   } else {
     stop("dispersion should be either sd or se")
   }
@@ -116,23 +126,23 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
       f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if (length(num.dat[, by]) > sum(TotCount)) {
-        MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
-        Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "Kruskal_Wallis"))
+      if (length(num.dat[, by]) > sum(total_count)) {
+        MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
+        Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "Kruskal_Wallis"))
         print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
-        Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "Kruskal_Wallis")
+        Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), "Kruskal_Wallis")
       }
     } else if (test.type == "parametric") {
       f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
       f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if (length(num.dat[, by]) > sum(TotCount)) {
-        MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
-        Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "OneWay_Test"))
+      if (length(num.dat[, by]) > sum(total_count)) {
+        MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
+        Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "OneWay_Test"))
         print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
       } else {
-        Row.Insert <- c("", "N", c(TotCount, length(num.dat[, by])), "OneWay_Test")
+        Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), "OneWay_Test")
       }
     } else {
       stop("test.type should be either non-parametric or parametric")
