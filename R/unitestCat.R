@@ -11,7 +11,7 @@
 #' @examples TODO
 
 unitestsCat <- function(fac.dat, fac.var, fac.label, by,
-                        per = "col", digits = 1, p.digits = 3, showMissing,
+                        per = "col", digits = 0, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, # for chisq.test
                         B = 2000 # for chisq.test
 ) {
@@ -67,6 +67,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
 
     return(list(count = count, tots = tots))
   }
+
   # Obtain Summary Data
   ind <- fac.dat[, by]
   res <- NULL

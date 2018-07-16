@@ -1,5 +1,5 @@
 unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
-                         digits = 1, p.digits = 3, ShowTotal = ShowTotal, showMissing, test.type = "parametric") {
+                         digits = 0, p.digits = 3, ShowTotal = ShowTotal, showMissing, test.type = "parametric") {
 
   # This function takes a data.frame(num.dat) of numerical columns as well as a factor column, and returns a statistical summary of df based on the factor column in num.dat
   #
@@ -27,12 +27,13 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   sumStatsCont <- function(x) {
     c(
       Mean = mean(x, na.rm = T), SD = sd(x, na.rm = T), SEM = sd(x, na.rm = T) / sqrt(sum(!is.na(x))),
-      Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
+      Median = round(median(x, na.rm = T), digits), IQR_25 = quantile(x, 0.25, na.rm = TRUE),
+      IQR_75 = quantile(x, 0.75, na.rm = TRUE),
       missing = sum(is.na(x))
     )
   }
 
-  # Obtain Summary Data
+  # Obtain Summary Result
   ind <- num.dat[, by]
   selected_df <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
   resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont))
@@ -56,9 +57,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   num.label <- factor(num.label, levels = num.label)
   tot_num <- length(num.var) # Total number of numerical variables
 
-  final <- matrix(unlist(resCont), byrow = T, ncol = 6) %>%
+  final <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
     rbind(., unname(t(apply(selected_df, 2, sumStatsCont)))) %>%
-    set_colnames(c("Mean", "SD", "SEM", "Median", "IQR", "Missing")) %>%
+    set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
     data.frame(
       num.var = c(rep(num.label, each = level_num), num.label),
       by = c(rep(levels(ind), tot_num), rep("", tot_num)), .
@@ -73,9 +74,12 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if (dispersion == "se") {
     f.final <- final %>%
-      mutate("Mean (se)" = paste(round(Mean, digits), "( ", " &#177; ", round(SEM, digits), " )", sep = "")) %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR))
+      mutate("Mean (se)" = paste(round(Mean, digits), "(", round(SEM, digits), ")", sep = "")) %>%
+      mutate("Median (IQR)" = paste(round(Median, digits), "(", round(IQR_25, digits), "-", round(IQR_75, digits), ")", sep = "")) %>%
+      select(-c(Mean, SEM, SD, Median, IQR_25, IQR_75))
+
+    #-----------&#177;
+
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
@@ -83,33 +87,33 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
 
     # set colnames
-    colnames(f.final)[1: 2] <- c("Variable", "Levels")
+    colnames(f.final)[1:2] <- c("Variable", "Levels")
     f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
 
     total_count <- c()
-    for(i in 3: ncol(f.final)) {
-        total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    for (i in 3:ncol(f.final)) {
+      total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
     }
   } else if (dispersion == "sd") {
     f.final <- final %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      mutate("Mean (sd)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR))
+      mutate("Median (IQR)" = paste(round(Median, digits), "(", round(IQR_25, digits), "-", round(IQR_75, digits), ")", sep = "")) %>%
+      mutate("Mean (sd)" = paste(round(Mean, digits), "(", round(SD, digits), ")", sep = "")) %>%
+      select(-c(Mean, SEM, SD, Median, IQR_25, IQR_75))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
     }
     f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
-    
+
     # set colnames
-    colnames(f.final)[1: 2] <- c("Variable", "Levels")
+    colnames(f.final)[1:2] <- c("Variable", "Levels")
     f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
     colnames(f.final)[ncol(f.final)] <- "Total"
 
     total_count <- c()
-    for(i in 3: ncol(f.final)) {
-        total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    for (i in 3:ncol(f.final)) {
+      total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
     }
   } else {
     stop("dispersion should be either sd or se")
