@@ -22,6 +22,7 @@ Imports:
     DataCombine,
     dplyr,
     magrittr,
+    pracma,
     reshape,
     reshape2,
     tidyr

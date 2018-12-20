@@ -123,7 +123,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Since num.label is a factor, we put back the actual character name
   final$num.var <- num.label[final$num.var]
   f.final$Variable <- num.label[f.final$Variable]
-  f.final$Variable <- ifelse(mod(1:nrow(f.final), ifelse(showMissing, 3, 2)) == 1, paste0("**", f.final$Variable, "**"), "")
+  f.final$Variable <- ifelse(pracma::mod(1:nrow(f.final), ifelse(showMissing, 3, 2)) == 1, paste0("**", f.final$Variable, "**"), "")
 
   if (ShowTotal == TRUE) {
     # If we would like to see the total numbers
