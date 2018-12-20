@@ -10,19 +10,49 @@ describeBy(data, var.names, var.labels = var.names, by1,
   simulate.p.value = FALSE, B = 2000)
 }
 \arguments{
-\item{data:}{Input data.frame(df)}
+\item{data}{data.frame to produce descriptive statistics}
+
+\item{var.names}{variable names}
+
+\item{var.labels}{variable descriptions. Uses `var.names` by default.}
+
+\item{by1}{factor to split other variables by}
+
+\item{dispersion}{measure of variability, either "se" (default) or "sd".}
+
+\item{ShowTotal}{logical; if `TRUE`, it shows the total number of each level
+w/ `by1`.}
+
+\item{by2}{optional second factor to split other variables by}
+
+\item{per}{print column ("col") or row ("row") percentages}
+
+\item{digits}{number of digits to round descriptive statistics}
+
+\item{p.digits}{number of digits to round univariable test p-value}
+
+\item{Missing}{logical; if `TRUE`, shows missing value counts}
+
+\item{stats}{either "parametric" or "non-parametric" univariable tests are
+performed}
+
+\item{simulate.p.value}{passed to `chisq.test`}
+
+\item{B}{passed to `chisq.test`}
 }
 \value{
-possibly something
+A table with descriptive statistics for continuous and categorical
+  variables and relevant univariable association tests
 }
 \description{
-takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
+Descriptive statistics and univariable association tests
 }
 \details{
-univariable association
+Takes variables from `data` and returns descriptive statistics based factor
+`by1`
 }
 \examples{
-TODO
+#TODO
 }
 \author{
 Aline Talhouk

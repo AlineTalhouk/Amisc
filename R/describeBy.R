@@ -1,15 +1,31 @@
 #' Descriptive statistics
 #'
-#' takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
+#' Descriptive statistics and univariable association tests
 #'
-#' univariable association
+#' Takes variables from `data` and returns descriptive statistics based factor
+#' `by1`
 #'
-#' @param data: Input data.frame(df)
-#' @return possibly something
+#' @param data data.frame to produce descriptive statistics
+#' @param var.names variable names
+#' @param var.labels variable descriptions. Uses `var.names` by default.
+#' @param by1 factor to split other variables by
+#' @param dispersion measure of variability, either "se" (default) or "sd".
+#' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
+#'   w/ `by1`.
+#' @param by2 optional second factor to split other variables by
+#' @param per print column ("col") or row ("row") percentages
+#' @param digits number of digits to round descriptive statistics
+#' @param p.digits number of digits to round univariable test p-value
+#' @param Missing logical; if `TRUE`, shows missing value counts
+#' @param stats either "parametric" or "non-parametric" univariable tests are
+#'   performed
+#' @param simulate.p.value passed to `chisq.test`
+#' @param B passed to `chisq.test`
+#' @return A table with descriptive statistics for continuous and categorical
+#'   variables and relevant univariable association tests
 #' @author Aline Talhouk
 #' @export
-#' @examples TODO
-
+#' @examples #TODO
 describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
                        by2 = NULL, per = "col", digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
