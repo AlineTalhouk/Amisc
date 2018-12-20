@@ -26,8 +26,8 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
   sumStatsCont <- function(x) {
     c(
-      Mean = mean(x, na.rm = T), SD = sd(x, na.rm = T), SEM = sd(x, na.rm = T) / sqrt(sum(!is.na(x))),
-      Median = round(median(x, na.rm = T), digits), IQR = IQR(x, na.rm = TRUE),
+      Mean = mean(x, na.rm = T), SD = stats::sd(x, na.rm = T), SEM = stats::sd(x, na.rm = T) / sqrt(sum(!is.na(x))),
+      Median = round(stats::median(x, na.rm = T), digits), IQR = stats::IQR(x, na.rm = TRUE),
       missing = sum(is.na(x))
     )
   }
@@ -38,7 +38,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   # Obtain Summary Data
   ind <- num.dat[, by]
-  selected_df <- data.frame(num.dat[, num.var]) %>% set_colnames(num.var) # Select all num.var in num.dat as a data.frame
+  selected_df <- data.frame(num.dat[, num.var]) %>% magrittr::set_colnames(num.var) # Select all num.var in num.dat as a data.frame
   resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont))
   TotCount <- apply(selected_df, 2, function(x) by(x, ind, CountTotal))[, 1] # Count the total number of each level w/ factor
 
@@ -53,10 +53,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if (test.type == "non-parametric") {
     # Kruskal-Wallis Test
-    test <- apply(selected_df, 2, function(x) round(kruskal.test(x ~ ind)$p.value, p.digits))
+    test <- apply(selected_df, 2, function(x) round(stats::kruskal.test(x ~ ind)$p.value, p.digits))
   } else {
     # Oneway.test : lhs ~ rhs, lhs gives sample vaules and rhs gives corresponding group(factor)
-    test <- apply(selected_df, 2, function(x) round(oneway.test(x ~ ind)$p.value, p.digits))
+    test <- apply(selected_df, 2, function(x) round(stats::oneway.test(x ~ ind)$p.value, p.digits))
   }
 
   # Since the codes below e.g. arrange, melt, dcast will order the
@@ -69,12 +69,12 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   final <- matrix(unlist(resCont), byrow = T, ncol = 6) %>%
     rbind(., unname(t(apply(selected_df, 2, sumStatsCont)))) %>%
-    set_colnames(c("Mean", "SD", "SEM", "Median", "IQR", "Missing")) %>%
+    magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR", "Missing")) %>%
     data.frame(
       num.var = c(rep(num.label, each = level_num), num.label),
       by = c(rep(levels(ind), tot_num), rep("", tot_num)), .
     ) %>%
-    arrange(., num.var)
+    dplyr::arrange(., num.var)
 
   # print(final)
 
@@ -86,9 +86,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if (dispersion == "se") {
     f.final <- final %>%
-      mutate("Mean (se)" = paste(round(Mean, digits), "( ", " &#177; ", round(SEM, digits), " )", sep = "")) %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR))
+      dplyr::mutate("Mean (se)" = paste(round(Mean, digits), "( ", " &#177; ", round(SEM, digits), " )", sep = "")) %>%
+      dplyr::mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      dplyr::select(-c(Mean, SEM, SD, Median, IQR))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
@@ -101,9 +101,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     colnames(f.final)[ncol(f.final)] <- "Total"
   } else if (dispersion == "sd") {
     f.final <- final %>%
-      mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      mutate("Mean (sd)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits), " )", sep = "")) %>%
-      select(-c(Mean, SEM, SD, Median, IQR))
+      dplyr::mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
+      dplyr::mutate("Mean (sd)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits), " )", sep = "")) %>%
+      dplyr::select(-c(Mean, SEM, SD, Median, IQR))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
@@ -130,7 +130,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     if (test.type == "non-parametric") {
       f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
-      f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if (length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "Kruskal_Wallis"))
@@ -141,7 +141,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     } else if (test.type == "parametric") {
       f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
-      f.final <- f.final %>% mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if (length(num.dat[, by]) > sum(TotCount)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(TotCount))
         Row.Insert <- c("", "N", TotCount, c(length(num.dat[, by]), "OneWay_Test"))

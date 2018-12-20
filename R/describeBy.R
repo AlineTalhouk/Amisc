@@ -44,7 +44,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       num.var <- var.names
       num.label <- num.var
       num.dat <- data.frame(var.dat, facets) %>%
-        set_colnames(c(num.var, by1, by2))
+        magrittr::set_colnames(c(num.var, by1, by2))
       fac.var <- fac.dat <- NULL
     } else if (all(fac.ind)) {
       # If the Single variable is Factor/Character
@@ -52,7 +52,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       fac.var <- var.names
       fac.label <- fac.var
       fac.dat <- data.frame(var.dat, facets) %>%
-        set_colnames(c(fac.var, by1, by2))
+        magrittr::set_colnames(c(fac.var, by1, by2))
       num.var <- num.dat <- NULL
     } else {
       stop("Variable must be numeric, integer, factor, or character.")
@@ -64,7 +64,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       num.var <- names(types)[which(num.ind)]
       num.label <- var.labels[which(num.ind)]
       num.dat <- data.frame(var.dat[, num.var], facets) %>%
-        set_colnames(c(num.var, by1, by2))
+        magrittr::set_colnames(c(num.var, by1, by2))
     } else {
       num.var <- num.dat <- NULL
     }
@@ -73,7 +73,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       fac.var <- names(types)[which(fac.ind)]
       fac.label <- var.labels[which(fac.ind)]
       fac.dat <- data.frame(var.dat[, fac.var], facets) %>%
-        set_colnames(c(fac.var, by1, by2))
+        magrittr::set_colnames(c(fac.var, by1, by2))
     } else {
       fac.var <- fac.dat <- NULL
     }
