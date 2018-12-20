@@ -4,10 +4,10 @@
 \alias{describeBy}
 \title{Descriptive statistics}
 \usage{
-describeBy(data, var.names, var.labels = var.names, by1, dispersion = "sd",
-  ShowTotal = TRUE, by2 = NULL, digits = 1, p.digits = 3,
-  Missing = TRUE, stats = "parametric", simulate.p.value = FALSE,
-  B = 2000)
+describeBy(data, var.names, var.labels = var.names, by1,
+  dispersion = "se", ShowTotal = TRUE, by2 = NULL, per = "col",
+  digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
+  simulate.p.value = FALSE, B = 2000)
 }
 \arguments{
 \item{data:}{Input data.frame(df)}
