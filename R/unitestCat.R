@@ -1,15 +1,3 @@
-#' some documentation
-#'
-#' a function to do something
-#'
-#' this function will do something
-#'
-#' @param some parameters
-#' @return possibly something
-#' @author Aline Talhouk
-#' @export
-#' @examples TODO
-
 unitestsCat <- function(fac.dat, fac.var, fac.label, by,
                         per = "col", digits = 1, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, # for chisq.test
