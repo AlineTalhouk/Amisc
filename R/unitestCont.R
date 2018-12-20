@@ -1,3 +1,4 @@
+#' @importFrom rlang .data
 unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
                          digits = 1, p.digits = 3, ShowTotal = ShowTotal, showMissing, test.type = "parametric") {
 
@@ -86,9 +87,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   if (dispersion == "se") {
     f.final <- final %>%
-      dplyr::mutate("Mean (se)" = paste(round(Mean, digits), "( ", " &#177; ", round(SEM, digits), " )", sep = "")) %>%
-      dplyr::mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      dplyr::select(-c(Mean, SEM, SD, Median, IQR))
+      dplyr::mutate("Mean (se)" = paste(round(.data$Mean, digits), "( ", " &#177; ", round(.data$SEM, digits), " )", sep = "")) %>%
+      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), "( ", " &#177; ", round(.data$IQR, digits), " )", sep = "")) %>%
+      dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR"))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])
@@ -101,9 +102,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     colnames(f.final)[ncol(f.final)] <- "Total"
   } else if (dispersion == "sd") {
     f.final <- final %>%
-      dplyr::mutate("Median (IQR)" = paste(round(Median, digits), "( ", " &#177; ", round(IQR, digits), " )", sep = "")) %>%
-      dplyr::mutate("Mean (sd)" = paste(round(Mean, digits), "( ", " &#177; ", round(SD, digits), " )", sep = "")) %>%
-      dplyr::select(-c(Mean, SEM, SD, Median, IQR))
+      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), "( ", " &#177; ", round(.data$IQR, digits), " )", sep = "")) %>%
+      dplyr::mutate("Mean (sd)" = paste(round(.data$Mean, digits), "( ", " &#177; ", round(.data$SD, digits), " )", sep = "")) %>%
+      dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR"))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
       f.final[, "Missing"] <- as.character(f.final[, "Missing"])

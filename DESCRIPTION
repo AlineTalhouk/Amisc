@@ -25,6 +25,7 @@ Imports:
     pracma,
     reshape,
     reshape2,
+    rlang,
     tidyr
 Suggests: 
     testthat
