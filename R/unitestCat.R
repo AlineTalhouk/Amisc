@@ -36,14 +36,16 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   }
 
   # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
-  sumStatsCat <- function(x, var, var.lab, ind, digits) {
+  sumStatsCat <- function(x, var, var.lab, ind, digits, per) {
     x <- droplevels(x) # drop unused levels from a factor
     ind <- droplevels(ind)
     count <- table(x, ind, dnn = list(var, by))
     na.r <- addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -p - 1]
-    per.row <- prop.table(count, margin = 1)
-    per.col <- round(prop.table(addmargins(count, 2), margin = 2) * 100, digits)
-
+    if (per == "col") {
+      per.val <- round(prop.table(stats::addmargins(count, 2), margin = 2) * 100, digits)
+    } else if (per == "row") {
+      per.val <- prop.table(count, margin = 1)
+    }
     tots <- matrix(paste0(addmargins(count, 2), "(", per.col, "%)"), byrow = F, nrow = dim(count)[1]) %>%
       set_rownames(c(levels(x)))
 
@@ -70,7 +72,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
   ind <- fac.dat[, by]
   res <- NULL
   for (i in seq_along(fac.var)) {
-    res <- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits)$tots)
+    res <- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits, per)$tots)
   }
   return(list(formatted = res))
 }

@@ -13,7 +13,7 @@
 #' @examples TODO
 
 describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
-                       by2 = NULL, digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
+                       by2 = NULL, per = "col", digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
                        B = 2000 # Only for unitestCat (Ignored by unitestCont)
 ) {
@@ -85,7 +85,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
   if (!(is.null(fac.dat) | is.null(num.dat))) {
     # Data is a mix of categorical and numerical, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
     num.formatted <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     row <- c(rep("", ncol(cat.formatted) - 1), "PearsonChi_square")
     cat.formatted <- rbind(row, cat.formatted)
 
@@ -95,7 +95,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
     final <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
   } else if (is.null(num.dat)) {
     # Data is only categorical, then we only apply unitestsCat
-    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     row <- c(rep("", ncol(final) - 1), "PearsonChi_square")
     final <- rbind(row, final)
   }
