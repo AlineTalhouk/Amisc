@@ -1,19 +1,33 @@
 #' Descriptive statistics
 #'
-#' takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df
+#' Descriptive statistics and univariable association tests
 #'
-#' univariable association
+#' Takes variables from `data` and returns descriptive statistics based factor
+#' `by1`
 #'
-#' @param data: Input data.frame(df)
-#' @param
-#' @return possibly something
+#' @param data data.frame to produce descriptive statistics
+#' @param var.names variable names
+#' @param var.labels variable descriptions. Uses `var.names` by default.
+#' @param by1 factor to split other variables by
+#' @param dispersion measure of variability, either "se" (default) or "sd".
+#' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
+#'   w/ `by1`.
+#' @param by2 optional second factor to split other variables by
+#' @param per print column ("col") or row ("row") percentages
+#' @param digits number of digits to round descriptive statistics
+#' @param p.digits number of digits to round univariable test p-value
+#' @param Missing logical; if `TRUE`, shows missing value counts
+#' @param stats either "parametric" or "non-parametric" univariable tests are
+#'   performed
+#' @param simulate.p.value passed to `chisq.test`
+#' @param B passed to `chisq.test`
+#' @return A table with descriptive statistics for continuous and categorical
+#'   variables and relevant univariable association tests
 #' @author Aline Talhouk
 #' @export
-#' @import
-#' @examples TODO
-
+#' @examples #TODO
 describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
-                       by2 = NULL, digits = 0, p.digits = 3, Missing = TRUE, stats = "parametric",
+                       by2 = NULL, per = "col", digits = 0, p.digits = 3, Missing = TRUE, stats = "parametric",
                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
                        B = 2000 # Only for unitestCat (Ignored by unitestCont)
 ) {
@@ -46,7 +60,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       num.var <- var.names
       num.label <- num.var
       num.dat <- data.frame(var.dat, facets) %>%
-        set_colnames(c(num.var, by1, by2))
+        magrittr::set_colnames(c(num.var, by1, by2))
       fac.var <- fac.dat <- NULL
     } else if (all(fac.ind)) {
       # If the Single variable is Factor/Character
@@ -54,7 +68,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       fac.var <- var.names
       fac.label <- fac.var
       fac.dat <- data.frame(var.dat, facets) %>%
-        set_colnames(c(fac.var, by1, by2))
+        magrittr::set_colnames(c(fac.var, by1, by2))
       num.var <- num.dat <- NULL
     } else {
       stop("Variable must be numeric, integer, factor, or character.")
@@ -66,7 +80,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       num.var <- names(types)[which(num.ind)]
       num.label <- var.labels[which(num.ind)]
       num.dat <- data.frame(var.dat[, num.var], facets) %>%
-        set_colnames(c(num.var, by1, by2))
+        magrittr::set_colnames(c(num.var, by1, by2))
     } else {
       num.var <- num.dat <- NULL
     }
@@ -75,7 +89,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
       fac.var <- names(types)[which(fac.ind)]
       fac.label <- var.labels[which(fac.ind)]
       fac.dat <- data.frame(var.dat[, fac.var], facets) %>%
-        set_colnames(c(fac.var, by1, by2))
+        magrittr::set_colnames(c(fac.var, by1, by2))
     } else {
       fac.var <- fac.dat <- NULL
     }
@@ -85,7 +99,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
   if (!(is.null(fac.dat) | is.null(num.dat))) {
     # Data is a mix of categorical and numerical, then we apply unitestsCont and unitestsCat to numerical and categorical respectively
     num.formatted <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     row <- c(rep("", ncol(cat.formatted) - 1), "PearsonChi_square")
     cat.formatted <- rbind(row, cat.formatted)
 
@@ -95,7 +109,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
     final <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
   } else if (is.null(num.dat)) {
     # Data is only categorical, then we only apply unitestsCat
-    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     row <- c(rep("", ncol(final) - 1), "PearsonChi_square")
     final <- rbind(row, final)
   }

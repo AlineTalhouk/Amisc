@@ -1,22 +1,33 @@
-Package: Amisc
 Type: Package
+Package: Amisc
 Title: Miscellaneous Utility Functions
-Version: 0.1
-Date: 2016-03-02
-Author: Aline Talhouk
-Maintainer: Aline Talhouk <atalhouk@bccrc.ca>
-Description: Provides some commonly used utility functions used in
-    biostatistics, such as row and column percentages in a table,
-    date formatting, survival functions, and more.
-Depends:
-    R (>= 3.2.0),
+Version: 0.1.1
+Date: 2019-01-24
+Authors@R: 
+    c(person(given = "Aline",
+             family = "Talhouk",
+             role = c("aut", "cre"),
+             email = "atalhouk@bccrc.ca"),
+      person(given = "Derek",
+             family = "Chiu",
+             role = "aut",
+             email = "dchiu@bccrc.ca"))
+Description: Provides some commonly used utility functions used
+    in biostatistics, such as row and column percentages in a table, date
+    formatting, survival functions, and more.
+License: GPL-2
+Depends: 
+    R (>= 3.2.0)
+Imports:
+    DataCombine,
     dplyr,
     magrittr,
-    tidyr,
+    pracma,
     reshape,
     reshape2,
-    DataCombine
-License: GPL-2
-RoxygenNote: 6.0.1.9000
+    rlang,
+    tidyr
 Suggests: 
     testthat
+Encoding: UTF-8
+RoxygenNote: 6.1.1
