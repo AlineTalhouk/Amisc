@@ -88,8 +88,8 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     }
   } else if (dispersion == "sd") {
     f.final <- final %>%
-      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), "(", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
-      dplyr::mutate("Mean (sd)" = paste(round(.data$Mean, digits), "(", round(.data$SD, digits), ")", sep = "")) %>%
+      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), " (", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
+      dplyr::mutate("Mean (sd)" = paste(round(.data$Mean, digits), " (", round(.data$SD, digits), ")", sep = "")) %>%
       dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR_25", "IQR_75"))
     if (showMissing == TRUE) {
       f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
