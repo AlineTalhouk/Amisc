@@ -34,7 +34,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     } else if (per == "row") {
       per.val <- round(stats::addmargins(prop.table(count, margin = 1), margin = 2) * 100, digits)
     }
-    tots <- matrix(paste0(stats::addmargins(count, 2), "(", per.val, "%)"), byrow = FALSE, nrow = dim(count)[1]) %>%
+    tots <- matrix(paste0(stats::addmargins(count, 2), " (", per.val, "%)"), byrow = FALSE, nrow = dim(count)[1]) %>%
       magrittr::set_rownames(levels(x))
 
     # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
