@@ -2,13 +2,13 @@
 #'
 #' Descriptive statistics and univariable association tests
 #'
-#' Takes variables from `data` and returns descriptive statistics based factor
-#' `by1`
+#' Takes variables from `data` and returns descriptive statistics split on
+#' factor `by1`.
 #'
 #' @param data data.frame to produce descriptive statistics
-#' @param var.names variable names
+#' @param var.names variable names of interest in `data`
 #' @param var.labels variable descriptions. Uses `var.names` by default.
-#' @param by1 factor to split other variables by
+#' @param by1 factor to split other variables by in `data`
 #' @param dispersion measure of variability, either "se" (default) or "sd".
 #' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
 #'   w/ `by1`.
@@ -16,33 +16,26 @@
 #' @param per print column ("col") or row ("row") percentages
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
-#' @param Missing logical; if `TRUE`, shows missing value counts
+#' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
 #' @param stats either "parametric" or "non-parametric" univariable tests are
 #'   performed
-#' @param simulate.p.value passed to `chisq.test`
-#' @param B passed to `chisq.test`
+#' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
+#'   variables.
+#' @param B passed to `chisq.test`. Only relevant for categorical variables.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
 #' @export
-#' @examples #TODO
-describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
-                       by2 = NULL, per = "col", digits = 0, p.digits = 3, Missing = TRUE, stats = "parametric",
-                       simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
-                       B = 2000 # Only for unitestCat (Ignored by unitestCont)
-) {
-  # This function takes up variables from a data.frame(df) and returns a descriptive statistic based on a selected factor `by1` in df.
-  #
-  # Args:
-  #   data: Input data.frame(df)
-  #   var.names: Variables from df that we are interested in
-  #   var.labels: Same as var.names
-  #   by1 : A selected factor in df
-  #   ShowTotal: When set to be TRUE, it shows the total number of each level w/ by1.
-  #   Missing: It's always set to be TRUE, and the missing ones will be shown only if there is one
-  #
-  # Returns: A summary data.frame summarise descriptives statistics for the input variables
-
+#' @examples
+#' mtcars$cyl <- as.factor(mtcars$cyl)
+#' mtcars$vs <- as.character(mtcars$vs)
+#' Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
+#' dispersion = "sd", Missing = TRUE, stats = "parametric")
+describeBy <- function(data, var.names, var.labels = var.names, by1,
+                       dispersion = "se", ShowTotal = TRUE, by2 = NULL,
+                       per = "col", digits = 0, p.digits = 3, Missing = TRUE,
+                       stats = "parametric", simulate.p.value = FALSE,
+                       B = 2000) {
   # Take out variables that we are interested in
   var.dat <- data[, var.names]
   facets <- data[, c(by1, by2)]
@@ -114,9 +107,4 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
     final <- rbind(row, final)
   }
   return(final)
-}
-# test
-test <- function(a, b, c) {
-  rm(a, envir = environment())
-  print(as.list(environment()))
 }
