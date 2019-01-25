@@ -1,5 +1,5 @@
 unitestsCat <- function(fac.dat, fac.var, fac.label, by,
-                        per = "col", digits = 1, p.digits = 3, showMissing,
+                        per = "col", digits = 0, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, # for chisq.test
                         B = 2000 # for chisq.test
 ) {
@@ -34,8 +34,8 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     } else if (per == "row") {
       per.val <- round(stats::addmargins(prop.table(count, margin = 1), margin = 2) * 100, digits)
     }
-    tots <- matrix(paste0(stats::addmargins(count, 2), "(", per.val, "%)"), byrow = F, nrow = dim(count)[1]) %>%
-      magrittr::set_rownames(c(levels(x)))
+    tots <- matrix(paste0(stats::addmargins(count, 2), " (", per.val, "%)"), byrow = FALSE, nrow = dim(count)[1]) %>%
+      magrittr::set_rownames(levels(x))
 
     # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
     if (sum(na.r) != 0 && showMissing == TRUE) {
@@ -56,6 +56,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
 
     return(list(count = count, tots = tots))
   }
+
   # Obtain Summary Data
   ind <- fac.dat[, by]
   res <- NULL

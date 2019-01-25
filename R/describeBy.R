@@ -27,7 +27,7 @@
 #' @export
 #' @examples #TODO
 describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion = "se", ShowTotal = TRUE,
-                       by2 = NULL, per = "col", digits = 1, p.digits = 3, Missing = TRUE, stats = "parametric",
+                       by2 = NULL, per = "col", digits = 0, p.digits = 3, Missing = TRUE, stats = "parametric",
                        simulate.p.value = FALSE, # Only for unitestCat (Ignored by unitestCont)
                        B = 2000 # Only for unitestCat (Ignored by unitestCont)
 ) {
@@ -115,7 +115,6 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, dispersion 
   }
   return(final)
 }
-
 # test
 test <- function(a, b, c) {
   rm(a, envir = environment())

@@ -1,8 +1,8 @@
 Type: Package
 Package: Amisc
 Title: Miscellaneous Utility Functions
-Version: 0.1.1
-Date: 2019-01-24
+Version: 0.1.2
+Date: 2019-01-25
 Authors@R: 
     c(person(given = "Aline",
              family = "Talhouk",
@@ -11,7 +11,11 @@ Authors@R:
       person(given = "Derek",
              family = "Chiu",
              role = "aut",
-             email = "dchiu@bccrc.ca"))
+             email = "dchiu@bccrc.ca"),
+      person(given = "Shanzhao",
+             family = "Wang",
+             role = "aut",
+             email = "szwang@bccrc.ca"))
 Description: Provides some commonly used utility functions used
     in biostatistics, such as row and column percentages in a table, date
     formatting, survival functions, and more.
