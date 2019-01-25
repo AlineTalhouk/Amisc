@@ -30,9 +30,9 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by,
     count <- table(x, ind, dnn = list(var, by))
     na.r <- stats::addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -p - 1]
     if (per == "col") {
-      per.val <- round(prop.table(stats::addmargins(count, 2), margin = 2) * 100, digits)
+      per.val <- round(prop.table(stats::addmargins(count, margin = 2), margin = 2) * 100, digits)
     } else if (per == "row") {
-      per.val <- prop.table(count, margin = 1)
+      per.val <- round(stats::addmargins(prop.table(count, margin = 1), margin = 2) * 100, digits)
     }
     tots <- matrix(paste0(stats::addmargins(count, 2), "(", per.val, "%)"), byrow = F, nrow = dim(count)[1]) %>%
       magrittr::set_rownames(c(levels(x)))
