@@ -28,8 +28,8 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   sumStatsCont <- function(x) {
     c(
       Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
-      Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = quantile(x, 0.25, na.rm = TRUE),
-      IQR_75 = quantile(x, 0.75, na.rm = TRUE),
+      Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
+      IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
       missing = sum(is.na(x))
     )
   }
