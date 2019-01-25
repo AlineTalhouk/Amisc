@@ -1,22 +1,13 @@
-unitestsCat <- function(fac.dat, fac.var, fac.label, by,
-                        per = "col", digits = 0, p.digits = 3, showMissing,
-                        simulate.p.value = FALSE, # for chisq.test
-                        B = 2000 # for chisq.test
-) {
-  # This function takes a data.frame(fac.dat) of categorical columns as well as a factor column, and returns a statistical summary of df based on the factor column in fac.dat
-  #
-  # Args:
-  #   fac.dat: A data.frame of all categorical variables and one factor variable
-  #   fac.var: Names of selected categorical variables
-  #   fac.label: Same as fac.var
-  #   by: Same factor column as by1 in describeBy
-  #   ShowTotal: When set to be TRUE, it show total number of each factor
-  #   showMissing: It's always set to be TRUE, but the missing ones will be shown only if there is one
-  #
-  #
-  # Returns: A list summary data.frame summarises descriptives statistics for the input data.frame(fac.dat)
-
-
+#' @inheritParams describeBy
+#' @param fac.dat data of categorical variables and one factor variable
+#' @param fac.var categorical variables
+#' @param fac.label categorical variable descriptions
+#' @param by factor variable passed as `by1` from `describeBy`
+#' @return a formatted summary of categorical variables
+#' @noRd
+unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
+                        digits = 0, p.digits = 3, showMissing,
+                        simulate.p.value = FALSE, B = 2000) {
   if (is.factor(fac.dat[, by])) {
     p <- nlevels(fac.dat[, by])
   } else {

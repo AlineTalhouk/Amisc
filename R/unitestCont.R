@@ -1,21 +1,14 @@
+#' @inheritParams describeBy
+#' @param num.dat data of numerical variables and one factor variable
+#' @param num.var numerical variables
+#' @param num.label numerical variable descriptions
+#' @param by factor variable passed as `by1` from `describeBy`
+#' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data
+#' @noRd
 unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
-                         digits = 0, p.digits = 3, ShowTotal = ShowTotal, showMissing, test.type = "parametric") {
-
-  # This function takes a data.frame(num.dat) of numerical columns as well as a factor column, and returns a statistical summary of df based on the factor column in num.dat
-  #
-  # Args:
-  #   num.dat: A data.frame of all numerical variables and one factor variable
-  #   num.var: Names of selected numerical variables
-  #   num.label: Same as num.var
-  #   by: Same factor column as by1 in describeBy
-  #   ShowTotal: When set to be TRUE, it show total number of each factor
-  #   showMissing: It's always set to be TRUE, but the missing ones will be shown only if there is one
-  #
-  #
-  # Returns: A list of two summary data.frames(raw, formatted) summarise descriptives statistics for the input data.frame(num.dat)
-
-
+                         digits = 0, p.digits = 3, ShowTotal = ShowTotal,
+                         showMissing, test.type = "parametric") {
   # Verify `by` in num.dat is indeed a factor
   if (is.factor(num.dat[, by])) {
     # Obtain number of distinct elements in the factor
