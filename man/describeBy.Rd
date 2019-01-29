@@ -12,11 +12,11 @@ describeBy(data, var.names, var.labels = var.names, by1,
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
 
-\item{var.names}{variable names}
+\item{var.names}{variable names of interest in `data`}
 
 \item{var.labels}{variable descriptions. Uses `var.names` by default.}
 
-\item{by1}{factor to split other variables by}
+\item{by1}{factor to split other variables by in `data`}
 
 \item{dispersion}{measure of variability, either "se" (default) or "sd".}
 
@@ -31,14 +31,15 @@ w/ `by1`.}
 
 \item{p.digits}{number of digits to round univariable test p-value}
 
-\item{Missing}{logical; if `TRUE`, shows missing value counts}
+\item{Missing}{logical; if `TRUE`, shows missing value counts, if they exist}
 
 \item{stats}{either "parametric" or "non-parametric" univariable tests are
 performed}
 
-\item{simulate.p.value}{passed to `chisq.test`}
+\item{simulate.p.value}{passed to `chisq.test`. Only relevant for categorical
+variables.}
 
-\item{B}{passed to `chisq.test`}
+\item{B}{passed to `chisq.test`. Only relevant for categorical variables.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical
@@ -48,11 +49,14 @@ A table with descriptive statistics for continuous and categorical
 Descriptive statistics and univariable association tests
 }
 \details{
-Takes variables from `data` and returns descriptive statistics based factor
-`by1`
+Takes variables from `data` and returns descriptive statistics split on
+factor `by1`.
 }
 \examples{
-#TODO
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.character(mtcars$vs)
+Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
+dispersion = "sd", Missing = TRUE, stats = "parametric")
 }
 \author{
 Aline Talhouk
