@@ -36,7 +36,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
     tot.rowname <- rownames(tots)
     tots <- tots[, c(ncol(tots), 1:ncol(tots) - 1)]
 
-    tots <- as.data.frame(matrix(tots, ncol = length(levels(ind)) + 1), row.names = tot.rowname) %>%
+    tots <- as.data.frame(matrix(tots, ncol = nlevels(ind) + 1), row.names = tot.rowname) %>%
       cbind(Variable = c(paste0("**", var.lab, "**"), rep("", nrow(.) - 1)), Levels = rownames(.), .) %>%
       cbind(., AssociationTest = c(format(round(stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value, p.digits), nsmall = p.digits), rep("", nrow(.) - 1))) %>%
       magrittr::set_rownames(NULL) %>%
