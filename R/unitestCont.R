@@ -16,20 +16,10 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     stop("Argument 'by' must be of type factor")
   }
 
-  # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
-  sumStatsCont <- function(x) {
-    c(
-      Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
-      Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
-      IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
-      missing = sum(is.na(x))
-    )
-  }
-
   # Obtain Summary Result
   ind <- num.dat[, by]
   selected_df <- data.frame(num.dat[, num.var]) %>% magrittr::set_colnames(num.var) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont))
+  resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont, digits = digits))
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
@@ -51,7 +41,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   tot_num <- length(num.var) # Total number of numerical variables
 
   final <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
-    rbind(., unname(t(apply(selected_df, 2, sumStatsCont)))) %>%
+    rbind(., unname(t(apply(selected_df, 2, sumStatsCont, digits = digits)))) %>%
     magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
     data.frame(
       num.var = c(rep(num.label, each = level_num), num.label),
@@ -155,4 +145,14 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     }
   }
   return(list(raw = final, formatted = f.final))
+}
+
+# Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
+sumStatsCont <- function(x, digits) {
+  c(
+    Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
+    Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
+    IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
+    missing = sum(is.na(x))
+  )
 }
