@@ -40,7 +40,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   num.label <- factor(num.label, levels = num.label)
   tot_num <- length(num.var) # Total number of numerical variables
 
-  final <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
+  raw <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
     rbind(., unname(t(apply(selected_df, 2, sumStatsCont, digits = digits)))) %>%
     magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
     data.frame(
@@ -50,66 +50,66 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     dplyr::arrange(., num.var)
 
   # If we can not detect any missing element or we do not require the missing parts, the "Missing" category will be removed
-  if (sum(final[, "Missing"]) == 0 | showMissing == FALSE) {
-    final <- final[, !names(final) %in% c("Missing")]
+  if (sum(raw[, "Missing"]) == 0 | showMissing == FALSE) {
+    raw <- raw[, !names(raw) %in% c("Missing")]
     showMissing <- FALSE # re-set showMissing == FALSE so that missing elements will not show up
   }
 
   if (dispersion == "se") {
-    f.final <- final %>%
+    formatted <- raw %>%
       dplyr::mutate("Mean (se)" = paste(round(.data$Mean, digits), " (", round(.data$SEM, digits), ")", sep = "")) %>%
       dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), " (", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
       dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR_25", "IQR_75"))
     if (showMissing == TRUE) {
-      f.final <- f.final %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
-      f.final[, "Missing"] <- as.character(f.final[, "Missing"])
+      formatted <- formatted %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
+      formatted[, "Missing"] <- as.character(formatted[, "Missing"])
     }
-    f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
+    formatted <- formatted %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
 
     # set colnames
-    colnames(f.final)[1:2] <- c("Variable", "Levels")
-    f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
-    colnames(f.final)[ncol(f.final)] <- "Total"
+    colnames(formatted)[1:2] <- c("Variable", "Levels")
+    formatted <- formatted[, c(1, 2, 4:ncol(formatted), 3)] # rearrange colnames for the sake of output layout
+    colnames(formatted)[ncol(formatted)] <- "Total"
 
     total_count <- c()
-    for (i in 3:ncol(f.final)) {
-      total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    for (i in 3:ncol(formatted)) {
+      total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
     }
   } else if (dispersion == "sd") {
-    f.final <- final %>%
+    formatted <- raw %>%
       dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), " (", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
       dplyr::mutate("Mean (sd)" = paste(round(.data$Mean, digits), " (", round(.data$SD, digits), ")", sep = "")) %>%
       dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR_25", "IQR_75"))
     if (showMissing == TRUE) {
-      f.final <- f.final %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
-      f.final[, "Missing"] <- as.character(f.final[, "Missing"])
+      formatted <- formatted %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
+      formatted[, "Missing"] <- as.character(formatted[, "Missing"])
     }
-    f.final <- f.final %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
+    formatted <- formatted %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
 
     # set colnames
-    colnames(f.final)[1:2] <- c("Variable", "Levels")
-    f.final <- f.final[, c(1, 2, 4:ncol(f.final), 3)] # rearrange colnames for the sake of output layout
-    colnames(f.final)[ncol(f.final)] <- "Total"
+    colnames(formatted)[1:2] <- c("Variable", "Levels")
+    formatted <- formatted[, c(1, 2, 4:ncol(formatted), 3)] # rearrange colnames for the sake of output layout
+    colnames(formatted)[ncol(formatted)] <- "Total"
 
     total_count <- c()
-    for (i in 3:ncol(f.final)) {
-      total_count <- c(total_count, TotCount[which(colnames(f.final)[i] == ind_names)])
+    for (i in 3:ncol(formatted)) {
+      total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
     }
   } else {
     stop("dispersion should be either sd or se")
   }
 
   # Since num.label is a factor, we put back the actual character name
-  final$num.var <- num.label[final$num.var]
-  f.final$Variable <- num.label[f.final$Variable]
-  f.final$Variable <- ifelse(pracma::mod(1:nrow(f.final), ifelse(showMissing, 3, 2)) == 1, paste0("**", f.final$Variable, "**"), "")
+  raw$num.var <- num.label[raw$num.var]
+  formatted$Variable <- num.label[formatted$Variable]
+  formatted$Variable <- ifelse(pracma::mod(1:nrow(formatted), ifelse(showMissing, 3, 2)) == 1, paste0("**", formatted$Variable, "**"), "")
 
   if (ShowTotal == TRUE) {
     # If we would like to see the total numbers
     if (test.type == "non-parametric") {
-      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+      formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
-      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if (length(num.dat[, by]) > sum(total_count)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
         Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "Kruskal_Wallis"))
@@ -118,9 +118,9 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
         Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), "Kruskal_Wallis")
       }
     } else if (test.type == "parametric") {
-      f.final$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+      formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
       # Add the total number
-      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       if (length(num.dat[, by]) > sum(total_count)) {
         MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
         Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "OneWay_Test"))
@@ -133,19 +133,19 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     }
   } else {
     if (test.type == "non-parametric") {
-      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       Row.Insert <- c(rep("", level_num + 3), "Kruskal_Wallis")
     } else if (test.type == "parametric") {
-      f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
       Row.Insert <- c(rep("", level_num + 3), "OneWay_Test")
     } else {
       stop("test.type should be either non-parametric or parametric")
     }
   }
-  f.final <- DataCombine::InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
-  return(list(raw = final, formatted = f.final))
+  formatted <- DataCombine::InsertRow(formatted, NewRow = Row.Insert, RowNum = 1)
+  tibble::lst(raw, formatted)
 }
 
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings

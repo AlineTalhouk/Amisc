@@ -56,6 +56,5 @@ sumStatsCat <- function(x, var, var.lab, ind, level_num, digits, per, p.digits, 
     dplyr::mutate_all(as.character)
 
   tots <- tots[, c(1, 2, 4:(ncol(tots) - 1), 3, ncol(tots))] # re-arrange columns for the sake of output layout
-
-  return(list(count = count, tots = tots))
+  tibble::lst(count, tots)
 }
