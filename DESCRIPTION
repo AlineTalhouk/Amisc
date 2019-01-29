@@ -30,6 +30,7 @@ Imports:
     reshape,
     reshape2,
     rlang,
+    tibble,
     tidyr
 Suggests: 
     testthat
