@@ -17,6 +17,16 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     stop("Argument By must be factor")
   }
 
+  # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
+  sumStatsCont <- function(x) {
+    c(
+      Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
+      Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
+      IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
+      missing = sum(is.na(x))
+    )
+  }
+
   # Obtain Summary Result
   ind <- num.dat[, by]
   selected_df <- data.frame(num.dat[, num.var]) %>% magrittr::set_colnames(num.var) # Select all num.var in num.dat as a data.frame
@@ -146,14 +156,4 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     }
   }
   return(list(raw = final, formatted = f.final))
-}
-
-# Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
-sumStatsCont <- function(x) {
-  c(
-    Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
-    Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
-    IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
-    missing = sum(is.na(x))
-  )
 }
