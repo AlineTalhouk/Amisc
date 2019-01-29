@@ -69,8 +69,6 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
     # Data is a mix of continuous and categorical variables, apply unitestsCont and unitestsCat respectively
     num.formatted <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
     cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
-    row <- c(rep("", ncol(cat.formatted) - 1), "PearsonChi_square")
-    cat.formatted <- rbind(row, cat.formatted)
     final <- rbind(num.formatted, cat.formatted)
   } else if (is.null(fac.dat)) {
     # Data is only continuous, only apply unitestsCont
@@ -78,8 +76,6 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
   } else if (is.null(num.dat)) {
     # Data is only categorical, only apply unitestsCat
     final <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
-    row <- c(rep("", ncol(final) - 1), "PearsonChi_square")
-    final <- rbind(row, final)
   }
   final
 }

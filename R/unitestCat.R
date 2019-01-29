@@ -54,6 +54,8 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
   for (i in seq_along(fac.var)) {
     res <- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, digits, per)$tots)
   }
+  Row.Insert <- c(rep("", ncol(res) - 1), "PearsonChi_square")
+  res <- rbind(Row.Insert, res)
   return(list(formatted = res))
 }
 
