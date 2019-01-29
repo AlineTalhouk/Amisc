@@ -131,19 +131,20 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     } else {
       stop("test.type should be either non-parametric or parametric")
     }
-
-    f.final <- DataCombine::InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
   } else {
     if (test.type == "non-parametric") {
       f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      Row.Insert <- c("", "N", "", "", "Kruskal_Wallis")
+      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      Row.Insert <- c(rep("", level_num + 3), "Kruskal_Wallis")
     } else if (test.type == "parametric") {
       f.final$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      Row.Insert <- c("", "N", "", "", "OneWay_Test")
+      f.final <- f.final %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+      Row.Insert <- c(rep("", level_num + 3), "OneWay_Test")
     } else {
       stop("test.type should be either non-parametric or parametric")
     }
   }
+  f.final <- DataCombine::InsertRow(f.final, NewRow = Row.Insert, RowNum = 1)
   return(list(raw = final, formatted = f.final))
 }
 
