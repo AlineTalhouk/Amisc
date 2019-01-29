@@ -5,7 +5,7 @@
 #' @param by factor variable passed as `by1` from `describeBy`
 #' @return a formatted summary of categorical variables
 #' @noRd
-unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
+uni_test_cat <- function(fac.dat, fac.var, fac.label, by, per = "col",
                         digits = 0, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor and store number of distinct levels
@@ -19,7 +19,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
   ind <- fac.dat[, by]
   res <- NULL
   for (i in seq_along(fac.var)) {
-    res <- rbind(res, sumStatsCat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B)$tots)
+    res <- rbind(res, sum_stats_cat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B)$tots)
   }
   Row.Insert <- c(rep("", ncol(res) - 1), "PearsonChi_square")
   res <- rbind(Row.Insert, res)
@@ -27,7 +27,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
 }
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
-sumStatsCat <- function(x, var, var.lab, ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B) {
+sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B) {
   x <- droplevels(x) # drop unused levels from a factor
   ind <- droplevels(ind)
   count <- table(x, ind, dnn = list(var, by))

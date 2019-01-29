@@ -6,7 +6,7 @@
 #' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data
 #' @noRd
-unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
+uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
                          digits = 0, p.digits = 3, ShowTotal = ShowTotal,
                          showMissing, test.type = "parametric") {
   # Verify `by` is a factor and store number of distinct levels
@@ -19,7 +19,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Obtain Summary Result
   ind <- num.dat[, by]
   selected_df <- data.frame(num.dat[, num.var]) %>% magrittr::set_colnames(num.var) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(selected_df, 2, function(x) by(x, ind, sumStatsCont, digits = digits))
+  resCont <- apply(selected_df, 2, function(x) by(x, ind, sum_stats_cont, digits = digits))
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
@@ -41,7 +41,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   tot_num <- length(num.var) # Total number of numerical variables
 
   raw <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
-    rbind(., unname(t(apply(selected_df, 2, sumStatsCont, digits = digits)))) %>%
+    rbind(., unname(t(apply(selected_df, 2, sum_stats_cont, digits = digits)))) %>%
     magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
     data.frame(
       num.var = c(rep(num.label, each = level_num), num.label),
@@ -149,7 +149,7 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 }
 
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
-sumStatsCont <- function(x, digits) {
+sum_stats_cont <- function(x, digits) {
   c(
     Mean = mean(x, na.rm = TRUE),
     SD = stats::sd(x, na.rm = TRUE),

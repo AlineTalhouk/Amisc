@@ -63,18 +63,18 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
   }
 
-  # Use unitestsCont and/or unitestsCat to obtain summary statistics
+  # Use uni_test_cont and/or uni_test_cat to obtain summary statistics
   if (!(is.null(fac.dat) | is.null(num.dat))) {
-    # Data is a mix of continuous and categorical variables, apply unitestsCont and unitestsCat respectively
-    num.formatted <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-    cat.formatted <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    # Data is a mix of continuous and categorical variables, apply uni_test_cont and uni_test_cat respectively
+    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+    cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     final <- rbind(num.formatted, cat.formatted)
   } else if (is.null(fac.dat)) {
-    # Data is only continuous, only apply unitestsCont
-    final <- unitestsCont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+    # Data is only continuous, only apply uni_test_cont
+    final <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
   } else if (is.null(num.dat)) {
-    # Data is only categorical, only apply unitestsCat
-    final <- unitestsCat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+    # Data is only categorical, only apply uni_test_cat
+    final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
   }
   final
 }
