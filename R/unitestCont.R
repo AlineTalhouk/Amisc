@@ -151,8 +151,11 @@ unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
 sumStatsCont <- function(x, digits) {
   c(
-    Mean = mean(x, na.rm = TRUE), SD = stats::sd(x, na.rm = TRUE), SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
-    Median = round(stats::median(x, na.rm = TRUE), digits), IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
+    Mean = mean(x, na.rm = TRUE),
+    SD = stats::sd(x, na.rm = TRUE),
+    SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
+    Median = round(stats::median(x, na.rm = TRUE), digits),
+    IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
     IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
     missing = sum(is.na(x))
   )
