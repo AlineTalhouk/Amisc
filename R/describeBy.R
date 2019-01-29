@@ -41,7 +41,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
   facets <- data[, c(by1, by2)]
 
   # Apply class() function to all selected variable.names
-  types <- sapply(var.dat, class)
+  types <- vapply(var.dat, class, character(1))
   num.ind <- types %in% c("numeric", "integer")
   fac.ind <- types %in% c("factor", "character")
 
