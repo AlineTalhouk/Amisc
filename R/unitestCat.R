@@ -8,10 +8,11 @@
 unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
                         digits = 0, p.digits = 3, showMissing,
                         simulate.p.value = FALSE, B = 2000) {
+  # Verify `by` is a factor and store number of distinct levels
   if (is.factor(fac.dat[, by])) {
-    p <- nlevels(fac.dat[, by])
+    level_num <- nlevels(fac.dat[, by])
   } else {
-    stop("by variable must be factor")
+    stop("Argument 'by' must be of type factor")
   }
 
   # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
@@ -19,7 +20,7 @@ unitestsCat <- function(fac.dat, fac.var, fac.label, by, per = "col",
     x <- droplevels(x) # drop unused levels from a factor
     ind <- droplevels(ind)
     count <- table(x, ind, dnn = list(var, by))
-    na.r <- stats::addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -p - 1]
+    na.r <- stats::addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -level_num - 1]
     if (per == "col") {
       per.val <- round(prop.table(stats::addmargins(count, margin = 2), margin = 2) * 100, digits)
     } else if (per == "row") {

@@ -9,12 +9,11 @@
 unitestsCont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
                          digits = 0, p.digits = 3, ShowTotal = ShowTotal,
                          showMissing, test.type = "parametric") {
-  # Verify `by` in num.dat is indeed a factor
+  # Verify `by` is a factor and store number of distinct levels
   if (is.factor(num.dat[, by])) {
-    # Obtain number of distinct elements in the factor
     level_num <- nlevels(num.dat[, by])
   } else {
-    stop("Argument By must be factor")
+    stop("Argument 'by' must be of type factor")
   }
 
   # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
