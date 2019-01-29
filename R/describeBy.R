@@ -44,13 +44,12 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
   types <- vapply(var.dat, class, character(1))
   num.ind <- which(types %in% c("numeric", "integer"))
   fac.ind <- which(types %in% c("factor", "character"))
-
-  num.var <- num.dat <- fac.var <- fac.dat <- NULL
   if (length(c(num.ind, fac.ind)) == 0) {
     stop("Variable(s) must be of type numeric, integer, factor, or character.")
   }
 
   # Separate selected variables into continuous and categorical
+  num.var <- num.dat <- fac.var <- fac.dat <- NULL
   if (length(num.ind) > 0) {
     # Continuous: numeric and integer types
     num.var <- names(types)[num.ind]
