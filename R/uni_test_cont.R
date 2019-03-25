@@ -18,7 +18,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 
   # Obtain Summary Result
   ind <- num.dat[, by]
-  selected_df <- data.frame(num.dat[, num.var]) %>% magrittr::set_colnames(num.var) # Select all num.var in num.dat as a data.frame
+  selected_df <- data.frame(num.dat[, num.var, drop = FALSE]) # Select all num.var in num.dat as a data.frame
   resCont <- apply(selected_df, 2, function(x) by(x, ind, sum_stats_cont, digits = digits))
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
