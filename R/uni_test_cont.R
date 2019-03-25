@@ -19,7 +19,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   # Obtain Summary Result
   ind <- num.dat[, by]
   selected_df <- data.frame(num.dat[, num.var, drop = FALSE]) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(selected_df, 2, function(x) by(x, ind, sum_stats_cont, digits = digits))
+  resCont <- apply(selected_df, 2, function(x) by(x, ind, sum_stats_cont))
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
@@ -39,14 +39,14 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   num.label <- factor(num.label, levels = num.label)
   tot_num <- length(num.var) # Total number of numerical variables
 
-  raw <- matrix(unlist(resCont), byrow = TRUE, ncol = 7) %>%
-    rbind(., unname(t(apply(selected_df, 2, sum_stats_cont, digits = digits)))) %>%
-    magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
-    data.frame(
-      num.var = c(rep(num.label, each = level_num), num.label),
-      by = c(rep(levels(ind), tot_num), rep("", tot_num)), .
-    ) %>%
-    dplyr::arrange(., num.var)
+  raw <- resCont %>%
+    purrr::map(~ purrr::invoke(rbind, .)) %>%
+    purrr::invoke(rbind, .) %>%
+    rbind(purrr::invoke(rbind, purrr::map(selected_df, sum_stats_cont))) %>%
+    data.frame(num.var = c(rep(num.label, each = level_num), num.label),
+               by = c(rep(levels(ind), tot_num), rep("", tot_num)),
+               .) %>%
+    dplyr::arrange(num.var)
 
   # If we can not detect any missing element or we do not require the missing parts, the "Missing" category will be removed
   if (sum(raw[, "Missing"]) == 0 | showMissing == FALSE) {
@@ -148,14 +148,14 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
 }
 
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
-sum_stats_cont <- function(x, digits) {
+sum_stats_cont <- function(x) {
   c(
     Mean = mean(x, na.rm = TRUE),
     SD = stats::sd(x, na.rm = TRUE),
     SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
-    Median = round(stats::median(x, na.rm = TRUE), digits),
-    IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE),
-    IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE),
-    missing = sum(is.na(x))
+    Median = stats::median(x, na.rm = TRUE),
+    IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE, names = FALSE),
+    IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE, names = FALSE),
+    Missing = sum(is.na(x))
   )
 }
