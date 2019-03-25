@@ -7,8 +7,8 @@
 #' @importFrom rlang .data
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
-                         digits = 0, p.digits = 3, ShowTotal = ShowTotal,
-                         showMissing, test.type = "parametric") {
+                          digits = 0, p.digits = 3, ShowTotal = ShowTotal,
+                          showMissing, test.type = "parametric") {
   # Verify `by` is a factor and store number of distinct levels
   if (is.factor(num.dat[, by])) {
     level_num <- nlevels(num.dat[, by])
@@ -23,14 +23,13 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
-  # Compute Statistical test and obtain the p-value
-  if (test.type == "non-parametric") {
-    # Kruskal-Wallis Test
-    test <- apply(selected_df, 2, function(x) round(stats::kruskal.test(x ~ ind)$p.value, p.digits))
-  } else {
-    # Oneway.test : lhs ~ rhs, lhs gives sample vaules and rhs gives corresponding group(factor)
-    test <- apply(selected_df, 2, function(x) round(stats::oneway.test(x ~ ind)$p.value, p.digits))
-  }
+  # Run statistical test and obtain p-value
+  f <- switch(
+    test.type,
+    parametric = stats::oneway.test,
+    `non-parametric` = stats::kruskal.test
+  )
+  test <- apply(selected_df, 2, function(x) round(f(x ~ ind)$p.value, p.digits))
 
   # Since the codes below e.g. arrange, melt, dcast will order the
   # results by num.label, we need to change num.label as a factor
@@ -40,7 +39,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   num.label <- factor(num.label, levels = num.label)
   tot_num <- length(num.var) # Total number of numerical variables
 
-  raw <- matrix(unlist(resCont), byrow = T, ncol = 7) %>%
+  raw <- matrix(unlist(resCont), byrow = TRUE, ncol = 7) %>%
     rbind(., unname(t(apply(selected_df, 2, sum_stats_cont, digits = digits)))) %>%
     magrittr::set_colnames(c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75", "Missing")) %>%
     data.frame(
