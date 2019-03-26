@@ -25,9 +25,6 @@ Depends:
 Imports:
     dplyr,
     magrittr,
-    pracma,
-    reshape,
-    reshape2,
     rlang,
     tibble,
     tidyr

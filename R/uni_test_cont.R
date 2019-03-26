@@ -89,7 +89,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     tidyr::gather(key = "Levels", , -1:-2, factor_key = TRUE) %>%
     tidyr::spread("by", "value") %>%
     dplyr::mutate(
-      Variable = ifelse(pracma::mod(seq_len(nrow(.)), ifelse(showMissing, 3, 2)) == 1, paste0("**", .data$Variable, "**"), ""),
+      Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
       PValue = as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
     ) %>%
     dplyr::mutate_if(is.factor, as.character)
