@@ -4,7 +4,7 @@
 #' @param num.label numerical variable descriptions
 #' @param by factor variable passed as `by1` from `describeBy`
 #' @return raw and formatted summaries of numerical variables
-#' @importFrom rlang .data
+#' @importFrom rlang .data :=
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by,
                           dispersion = c("sd", "se"), digits = 0, p.digits = 3,
@@ -47,10 +47,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   # manually set the level so that the order of num.label is preserved
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
-      Variable = factor(Variable, levels = num.label),
+      Variable = factor(.data$Variable, levels = num.label),
       by = forcats::fct_relevel(by, "Total", after = Inf)
     ) %>%
-    dplyr::arrange(Variable)
+    dplyr::arrange(.data$Variable)
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
@@ -86,10 +86,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   # Pivot table, bold variable names, add p-values, and coerce to character to
   # prepare for row inserting
   formatted <- formatted %>%
-    tidyr::gather(key = Levels, , -1:-2, factor_key = TRUE) %>%
-    tidyr::spread(by, value) %>%
+    tidyr::gather(key = "Levels", , -1:-2, factor_key = TRUE) %>%
+    tidyr::spread("by", "value") %>%
     dplyr::mutate(
-      Variable = ifelse(pracma::mod(seq_len(nrow(.)), ifelse(showMissing, 3, 2)) == 1, paste0("**", Variable, "**"), ""),
+      Variable = ifelse(pracma::mod(seq_len(nrow(.)), ifelse(showMissing, 3, 2)) == 1, paste0("**", .data$Variable, "**"), ""),
       PValue = as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
     ) %>%
     dplyr::mutate_if(is.factor, as.character)

@@ -3,4 +3,5 @@
 export("%>%")
 export(describeBy)
 importFrom(magrittr,"%>%")
+importFrom(rlang,":=")
 importFrom(rlang,.data)
