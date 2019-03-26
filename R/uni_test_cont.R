@@ -7,7 +7,7 @@
 #' @importFrom rlang .data
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
-                          digits = 0, p.digits = 3, ShowTotal = ShowTotal,
+                          digits = 0, p.digits = 3, ShowTotal,
                           showMissing, test.type = "parametric") {
   # Verify `by` is a factor and store number of distinct levels
   if (is.factor(num.dat[, by])) {
