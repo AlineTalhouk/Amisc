@@ -54,48 +54,38 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     showMissing <- FALSE # re-set showMissing == FALSE so that missing elements will not show up
   }
 
+  # Choose dispersion
   if (dispersion == "se") {
-    formatted <- raw %>%
-      dplyr::mutate("Mean (se)" = paste(round(.data$Mean, digits), " (", round(.data$SEM, digits), ")", sep = "")) %>%
-      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), " (", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
-      dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR_25", "IQR_75"))
-    if (showMissing == TRUE) {
-      formatted <- formatted %>% .[, c("num.var", "by", "Mean (se)", "Median (IQR)", "Missing")]
-      formatted[, "Missing"] <- as.character(formatted[, "Missing"])
-    }
-    formatted <- formatted %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (se)") ~ by)
-
-    # set colnames
-    colnames(formatted)[1:2] <- c("Variable", "Levels")
-    formatted <- formatted[, c(1, 2, 4:ncol(formatted), 3)] # rearrange colnames for the sake of output layout
-    colnames(formatted)[ncol(formatted)] <- "Total"
-
-    total_count <- c()
-    for (i in 3:ncol(formatted)) {
-      total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
-    }
+    disp_name <- "Mean (se)"
+    disp_var <- "SEM"
   } else if (dispersion == "sd") {
-    formatted <- raw %>%
-      dplyr::mutate("Median (IQR)" = paste(round(.data$Median, digits), " (", round(.data$IQR_25, digits), " - ", round(.data$IQR_75, digits), ")", sep = "")) %>%
-      dplyr::mutate("Mean (sd)" = paste(round(.data$Mean, digits), " (", round(.data$SD, digits), ")", sep = "")) %>%
-      dplyr::select(-c("Mean", "SEM", "SD", "Median", "IQR_25", "IQR_75"))
-    if (showMissing == TRUE) {
-      formatted <- formatted %>% .[, c("num.var", "by", "Mean (sd)", "Median (IQR)", "Missing")]
-      formatted[, "Missing"] <- as.character(formatted[, "Missing"])
-    }
-    formatted <- formatted %>% reshape2::melt(., id = c("num.var", "by")) %>% reshape2::dcast(., num.var + relevel(variable, ref = "Mean (sd)") ~ by)
-
-    # set colnames
-    colnames(formatted)[1:2] <- c("Variable", "Levels")
-    formatted <- formatted[, c(1, 2, 4:ncol(formatted), 3)] # rearrange colnames for the sake of output layout
-    colnames(formatted)[ncol(formatted)] <- "Total"
-
-    total_count <- c()
-    for (i in 3:ncol(formatted)) {
-      total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
-    }
+    disp_name <- "Mean (sd)"
+    disp_var <- "SD"
   } else {
     stop("dispersion should be either sd or se")
+  }
+
+  # Formatted table with selected dispersion variable
+  formatted <- raw %>%
+    dplyr::mutate_if(is.numeric, round, digits = digits) %>%
+    dplyr::transmute(
+      Variable = num.var,
+      by = forcats::fct_recode(by, Total = "") %>%
+        forcats::fct_relevel("Total", after = Inf),
+      !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
+      `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
+    )
+  if ("Missing" %in% names(formatted)) {
+    formatted <- formatted %>% dplyr::mutate_at("Missing", as.character)
+  }
+  formatted <- formatted %>%
+    tidyr::gather(key = Levels, , -1:-2, factor_key = TRUE) %>%
+    tidyr::spread(by, value)
+
+  # Total counts
+  total_count <- c()
+  for (i in 3:ncol(formatted)) {
+    total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
   }
 
   # Since num.label is a factor, we put back the actual character name
