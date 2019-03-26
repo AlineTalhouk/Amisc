@@ -23,7 +23,6 @@ License: GPL-2
 Depends: 
     R (>= 3.2.0)
 Imports:
-    DataCombine,
     dplyr,
     magrittr,
     pracma,

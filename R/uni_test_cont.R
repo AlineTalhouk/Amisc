@@ -111,7 +111,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
     Row.Insert <- c(rep("", level_num + 3), test_name)
   }
-  formatted <- DataCombine::InsertRow(formatted, NewRow = Row.Insert, RowNum = 1)
+  formatted <- rbind(Row.Insert, formatted)
   tibble::lst(raw, formatted)
 }
 
