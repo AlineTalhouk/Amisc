@@ -16,10 +16,18 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     stop("Argument 'by' must be of type factor")
   }
 
-  # Obtain Summary Result
+  # Group and total continuous stats
   ind <- num.dat[, by]
-  selected_df <- data.frame(num.dat[, num.var, drop = FALSE]) # Select all num.var in num.dat as a data.frame
-  resCont <- apply(selected_df, 2, function(x) by(x, ind, sum_stats_cont))
+  df <- data.frame(num.dat[, num.var, drop = FALSE])
+  group_stats <- df %>%
+    purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
+    purrr::imap_dfr(~ data.frame(num.var = .y, by = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
+  total_stats <- df %>%
+    purrr::map(sum_stats_cont) %>%
+    purrr::invoke(rbind, .) %>%
+    as.data.frame() %>%
+    tibble::add_column(by = "Total", .before = 1) %>%
+    tibble::rownames_to_column("num.var")
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
@@ -29,32 +37,25 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     parametric = stats::oneway.test,
     `non-parametric` = stats::kruskal.test
   )
-  test <- apply(selected_df, 2, function(x) round(f(x ~ ind)$p.value, p.digits))
+  test <- apply(df, 2, function(x) round(f(x ~ ind)$p.value, p.digits))
 
-  # Since the codes below e.g. arrange, melt, dcast will order the
-  # results by num.label, we need to change num.label as a factor
-  # and manually set the level so that the order of num.label may
-  # be preserved
-
-  num.label <- factor(num.label, levels = num.label)
-  tot_num <- length(num.var) # Total number of numerical variables
-
-  raw <- resCont %>%
-    purrr::map(~ purrr::invoke(rbind, .)) %>%
-    purrr::invoke(rbind, .) %>%
-    rbind(purrr::invoke(rbind, purrr::map(selected_df, sum_stats_cont))) %>%
-    data.frame(num.var = c(rep(num.label, each = level_num), num.label),
-               by = c(rep(levels(ind), tot_num), rep("", tot_num)),
-               .) %>%
+  # Order num.var by num.label, we need to change num.label as a factor and
+  # manually set the level so that the order of num.label is preserved
+  raw <- rbind(group_stats, total_stats) %>%
+    dplyr::mutate(
+      num.var = factor(num.var, levels = num.label),
+      by = forcats::fct_relevel(by, "Total", after = Inf)
+    ) %>%
     dplyr::arrange(num.var)
 
-  # If we can not detect any missing element or we do not require the missing parts, the "Missing" category will be removed
-  if (sum(raw[, "Missing"]) == 0 | showMissing == FALSE) {
-    raw <- raw[, !names(raw) %in% c("Missing")]
-    showMissing <- FALSE # re-set showMissing == FALSE so that missing elements will not show up
+  # If we cannot detect any missing element or we do not require the missing
+  # parts, the "Missing" variable will be removed
+  if (sum(raw[["Missing"]]) == 0 | !showMissing) {
+    raw <- dplyr::select(raw, -.data$Missing)
+    showMissing <- FALSE # set FALSE so that missing elements will not show up
   }
 
-  # Choose dispersion
+  # Choose dispersion parameter
   if (dispersion == "se") {
     disp_name <- "Mean (se)"
     disp_var <- "SEM"
@@ -70,8 +71,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     dplyr::mutate_if(is.numeric, round, digits = digits) %>%
     dplyr::transmute(
       Variable = num.var,
-      by = forcats::fct_recode(by, Total = "") %>%
-        forcats::fct_relevel("Total", after = Inf),
+      by,
       !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
       `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
     )
@@ -88,12 +88,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
   }
 
-  # Since num.label is a factor, we put back the actual character name
-  raw$num.var <- num.label[raw$num.var]
-  formatted$Variable <- num.label[formatted$Variable]
+  # Add bold formatting to variable names
   formatted$Variable <- ifelse(pracma::mod(1:nrow(formatted), ifelse(showMissing, 3, 2)) == 1, paste0("**", formatted$Variable, "**"), "")
 
-  if (ShowTotal == TRUE) {
+  if (ShowTotal) {
     # If we would like to see the total numbers
     if (test.type == "non-parametric") {
       formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
