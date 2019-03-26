@@ -9,7 +9,7 @@
 #' @param var.names variable names of interest in `data`
 #' @param var.labels variable descriptions. Uses `var.names` by default.
 #' @param by1 factor to split other variables by in `data`
-#' @param dispersion measure of variability, either "se" (default) or "sd".
+#' @param dispersion measure of variability, either "sd" (default) or "se".
 #' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
 #'   w/ `by1`.
 #' @param by2 optional second factor to split other variables by
@@ -17,8 +17,8 @@
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
 #' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
-#' @param stats either "parametric" or "non-parametric" univariable tests are
-#'   performed
+#' @param stats either "parametric" (default) or "non-parametric" univariable
+#'   tests are performed
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
 #' @param B passed to `chisq.test`. Only relevant for categorical variables.

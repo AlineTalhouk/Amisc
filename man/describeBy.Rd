@@ -5,23 +5,24 @@
 \title{Descriptive statistics}
 \usage{
 describeBy(data, var.names, var.labels = var.names, by1,
-  dispersion = "se", ShowTotal = TRUE, by2 = NULL, per = "col",
-  digits = 0, p.digits = 3, Missing = TRUE, stats = "parametric",
-  simulate.p.value = FALSE, B = 2000)
+  dispersion = c("sd", "se"), ShowTotal = TRUE, by2 = NULL,
+  per = "col", digits = 0, p.digits = 3, Missing = TRUE,
+  stats = c("parametric", "non-parametric"), simulate.p.value = FALSE,
+  B = 2000)
 }
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
 
-\item{var.names}{variable names of interest in `data`}
+\item{var.names}{variable names of interest in \code{data}}
 
-\item{var.labels}{variable descriptions. Uses `var.names` by default.}
+\item{var.labels}{variable descriptions. Uses \code{var.names} by default.}
 
-\item{by1}{factor to split other variables by in `data`}
+\item{by1}{factor to split other variables by in \code{data}}
 
-\item{dispersion}{measure of variability, either "se" (default) or "sd".}
+\item{dispersion}{measure of variability, either "sd" (default) or "se".}
 
-\item{ShowTotal}{logical; if `TRUE`, it shows the total number of each level
-w/ `by1`.}
+\item{ShowTotal}{logical; if \code{TRUE}, it shows the total number of each level
+w/ \code{by1}.}
 
 \item{by2}{optional second factor to split other variables by}
 
@@ -31,26 +32,26 @@ w/ `by1`.}
 
 \item{p.digits}{number of digits to round univariable test p-value}
 
-\item{Missing}{logical; if `TRUE`, shows missing value counts, if they exist}
+\item{Missing}{logical; if \code{TRUE}, shows missing value counts, if they exist}
 
-\item{stats}{either "parametric" or "non-parametric" univariable tests are
-performed}
+\item{stats}{either "parametric" (default) or "non-parametric" univariable
+tests are performed}
 
-\item{simulate.p.value}{passed to `chisq.test`. Only relevant for categorical
+\item{simulate.p.value}{passed to \code{chisq.test}. Only relevant for categorical
 variables.}
 
-\item{B}{passed to `chisq.test`. Only relevant for categorical variables.}
+\item{B}{passed to \code{chisq.test}. Only relevant for categorical variables.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical
-  variables and relevant univariable association tests
+variables and relevant univariable association tests
 }
 \description{
 Descriptive statistics and univariable association tests
 }
 \details{
-Takes variables from `data` and returns descriptive statistics split on
-factor `by1`.
+Takes variables from \code{data} and returns descriptive statistics split on
+factor \code{by1}.
 }
 \examples{
 mtcars$cyl <- as.factor(mtcars$cyl)
