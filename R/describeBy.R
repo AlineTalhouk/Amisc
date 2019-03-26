@@ -32,10 +32,10 @@
 #' Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
 #' dispersion = "sd", Missing = TRUE, stats = "parametric")
 describeBy <- function(data, var.names, var.labels = var.names, by1,
-                       dispersion = "se", ShowTotal = TRUE, by2 = NULL,
+                       dispersion = c("sd", "se"), ShowTotal = TRUE, by2 = NULL,
                        per = "col", digits = 0, p.digits = 3, Missing = TRUE,
-                       stats = "parametric", simulate.p.value = FALSE,
-                       B = 2000) {
+                       stats = c("parametric", "non-parametric"),
+                       simulate.p.value = FALSE, B = 2000) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -66,12 +66,12 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
   # Use uni_test_cont and/or uni_test_cat to obtain summary statistics
   if (!(is.null(fac.dat) | is.null(num.dat))) {
     # Data is a mix of continuous and categorical variables, apply uni_test_cont and uni_test_cat respectively
-    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, stats = stats)$formatted
     cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
     final <- rbind(num.formatted, cat.formatted)
   } else if (is.null(fac.dat)) {
     # Data is only continuous, only apply uni_test_cont
-    final <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
+    final <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, stats = stats)$formatted
   } else if (is.null(num.dat)) {
     # Data is only categorical, only apply uni_test_cat
     final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted

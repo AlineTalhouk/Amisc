@@ -6,9 +6,10 @@
 #' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data
 #' @noRd
-uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
-                          digits = 0, p.digits = 3, ShowTotal,
-                          showMissing, test.type = "parametric") {
+uni_test_cont <- function(num.dat, num.var, num.label, by,
+                          dispersion = c("sd", "se"), digits = 0, p.digits = 3,
+                          ShowTotal, showMissing,
+                          stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and store number of distinct levels
   if (is.factor(num.dat[, by])) {
     level_num <- nlevels(num.dat[, by])
@@ -32,7 +33,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
   # Choose parametric/non-parametric statistical test
-  switch(test.type,
+  switch(match.arg(stats),
          parametric = {
            f <- stats::oneway.test
            test_name <- "OneWay_Test"
@@ -60,15 +61,15 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   }
 
   # Choose dispersion parameter
-  if (dispersion == "se") {
-    disp_name <- "Mean (se)"
-    disp_var <- "SEM"
-  } else if (dispersion == "sd") {
-    disp_name <- "Mean (sd)"
-    disp_var <- "SD"
-  } else {
-    stop("dispersion should be either sd or se")
-  }
+  switch(match.arg(dispersion),
+         sd = {
+           disp_name <- "Mean (sd)"
+           disp_var <- "SD"
+         },
+         se = {
+           disp_name <- "Mean (se)"
+           disp_var <- "SEM"
+         })
 
   # Formatted table with selected dispersion variable
   formatted <- raw %>%
@@ -82,30 +83,28 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   if ("Missing" %in% names(formatted)) {
     formatted <- formatted %>% dplyr::mutate_at("Missing", as.character)
   }
+  # Pivot table, bold variable names, add p-values, and coerce to character to
+  # prepare for row inserting
   formatted <- formatted %>%
     tidyr::gather(key = Levels, , -1:-2, factor_key = TRUE) %>%
-    tidyr::spread(by, value)
+    tidyr::spread(by, value) %>%
+    dplyr::mutate(
+      Variable = ifelse(pracma::mod(seq_len(nrow(.)), ifelse(showMissing, 3, 2)) == 1, paste0("**", Variable, "**"), ""),
+      PValue = as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+    ) %>%
+    dplyr::mutate_if(is.factor, as.character)
 
-  # Add bold formatting to variable names
-  formatted$Variable <- ifelse(pracma::mod(1:nrow(formatted), ifelse(showMissing, 3, 2)) == 1, paste0("**", formatted$Variable, "**"), "")
-
+  # Add the total number
   if (ShowTotal) {
-    formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-    # Add the total number
-    formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+    row_header <- c("", "N", total_count, length(num.dat[, by]), test_name)
     if (length(num.dat[, by]) > sum(total_count)) {
       MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
-      Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), test_name))
-      print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
-    } else {
-      Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), test_name)
+      print(paste0(MissingNumber, " missing in the Input Argument ", by, "."))
     }
   } else {
-    formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-    formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-    Row.Insert <- c(rep("", level_num + 3), test_name)
+    row_header <- c(rep("", level_num + 3), test_name)
   }
-  formatted <- rbind(Row.Insert, formatted)
+  formatted <- rbind(row_header, formatted)
   tibble::lst(raw, formatted)
 }
 
