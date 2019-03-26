@@ -46,9 +46,11 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
       stats::addmargins(margin = 2)
   }
   tots <- per.val %>%
-    magrittr::multiply_by(100) %>%
-    round(digits) %>%
-    paste0(stats::addmargins(count, 2), " (", ., "%)") %>%
+    as.numeric() %>%
+    scales::percent(accuracy = 10 ^ -(digits),
+                    prefix = "(",
+                    suffix = "%)") %>%
+    paste(stats::addmargins(count, 2), .) %>%
     matrix(nrow = nrow(count),
            dimnames = list(levels(x), c(levels(ind), "Total")))
 
