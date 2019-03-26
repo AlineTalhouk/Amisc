@@ -77,10 +77,11 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
       !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
       `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
     ) %>%
-    dplyr::select(-c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75")) %>%
-    dplyr::select(-.data$Missing, .data$Missing)
+    dplyr::select(-c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75"))
   if ("Missing" %in% names(formatted)) {
-    formatted <- formatted %>% dplyr::mutate_at("Missing", as.character)
+    formatted <- formatted %>%
+      dplyr::select(-"Missing", "Missing") %>%
+      dplyr::mutate_at("Missing", as.character)
   }
   # Pivot table, bold variable names, add p-values, and coerce to character to
   # prepare for row inserting
