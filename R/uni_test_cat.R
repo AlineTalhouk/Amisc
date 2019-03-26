@@ -16,13 +16,16 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, per = "col",
   }
 
   # Obtain Summary Data
-  ind <- fac.dat[, by]
-  res <- NULL
-  for (i in seq_along(fac.var)) {
-    res <- rbind(res, sum_stats_cat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B))
-  }
+  stats_args <- tibble::lst(ind = fac.dat[, by], level_num, digits, per,
+                            p.digits, showMissing, simulate.p.value, B)
   row_header <- c(rep("", ncol(res) - 1), "PearsonChi_square")
-  formatted <- rbind(row_header, res)
+  formatted <- fac.dat %>%
+    dplyr::transmute_at(fac.var, factor) %>%
+    purrr::splice(fac.var, fac.label) %>%
+    purrr::pmap_dfr(~ purrr::invoke(
+      sum_stats_cat, x = ..1, var = ..2, var.lab = ..3, stats_args
+    )) %>%
+    rbind(row_header, .)
   tibble::lst(formatted)
 }
 
