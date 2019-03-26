@@ -8,7 +8,7 @@
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by,
                           dispersion = c("sd", "se"), digits = 0, p.digits = 3,
-                          ShowTotal, showMissing,
+                          showMissing,
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and store number of distinct levels
   if (is.factor(num.dat[, by])) {
@@ -29,7 +29,6 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     as.data.frame() %>%
     tibble::add_column(by = "Total", .before = 1) %>%
     tibble::rownames_to_column("Variable")
-  total_count <- table(ind) # counts for each level in the factor `by`
 
   # Choose parametric/non-parametric statistical test
   switch(match.arg(stats),
@@ -83,8 +82,9 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
       dplyr::select(-"Missing", "Missing") %>%
       dplyr::mutate_at("Missing", as.character)
   }
-  # Pivot table, bold variable names, add p-values, and coerce to character to
-  # prepare for row inserting
+  # Pivot table, bold variable names, add p-values, coerce factors to character
+  # for adding row header
+  row_header <- c(rep("", level_num + 3), test_name)
   formatted <- formatted %>%
     tidyr::gather(key = "Levels", , -1:-2, factor_key = TRUE) %>%
     tidyr::spread("by", "value") %>%
@@ -92,19 +92,15 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
       Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
       PValue = as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
     ) %>%
-    dplyr::mutate_if(is.factor, as.character)
+    dplyr::mutate_if(is.factor, as.character) %>%
+    rbind(row_header, .)
 
-  # Add the total number
-  if (ShowTotal) {
-    row_header <- c("", "N", total_count, length(num.dat[, by]), test_name)
-    if (length(num.dat[, by]) > sum(total_count)) {
-      MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
-      print(paste0(MissingNumber, " missing in the Input Argument ", by, "."))
-    }
-  } else {
-    row_header <- c(rep("", level_num + 3), test_name)
+  # Indicate missing inputs if applicable
+  total_count <- table(ind) # counts for each level in the factor `by`
+  if (length(num.dat[, by]) > sum(total_count)) {
+    MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
+    print(paste0(MissingNumber, " missing in the Input Argument ", by, "."))
   }
-  formatted <- rbind(row_header, formatted)
   tibble::lst(raw, formatted)
 }
 
