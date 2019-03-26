@@ -9,16 +9,17 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, per = "col",
                          digits = 0, p.digits = 3, showMissing,
                          simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor and store number of distinct levels
-  if (is.factor(fac.dat[, by])) {
-    level_num <- nlevels(fac.dat[, by])
+  ind <- fac.dat[, by]
+  if (is.factor(ind)) {
+    level_num <- nlevels(ind)
   } else {
     stop("Argument 'by' must be of type factor")
   }
 
   # Obtain Summary Data
-  stats_args <- tibble::lst(ind = fac.dat[, by], level_num, digits, per,
-                            p.digits, showMissing, simulate.p.value, B)
-  row_header <- c(rep("", ncol(res) - 1), "PearsonChi_square")
+  stats_args <- tibble::lst(ind, level_num, digits, per, p.digits, showMissing,
+                            simulate.p.value, B)
+  row_header <- c(rep("", level_num + 3), "PearsonChi_square")
   formatted <- fac.dat %>%
     dplyr::transmute_at(fac.var, factor) %>%
     purrr::splice(fac.var, fac.label) %>%
