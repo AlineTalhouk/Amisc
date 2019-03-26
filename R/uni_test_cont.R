@@ -22,13 +22,13 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   df <- data.frame(num.dat[, num.var, drop = FALSE])
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
-    purrr::imap_dfr(~ data.frame(num.var = .y, by = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
+    purrr::imap_dfr(~ data.frame(Variable = .y, by = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
   total_stats <- df %>%
     purrr::map(sum_stats_cont) %>%
     purrr::invoke(rbind, .) %>%
     as.data.frame() %>%
     tibble::add_column(by = "Total", .before = 1) %>%
-    tibble::rownames_to_column("num.var")
+    tibble::rownames_to_column("Variable")
   total_count <- table(ind) # counts for each level in the factor `by`
 
   # Choose parametric/non-parametric statistical test
@@ -47,10 +47,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   # manually set the level so that the order of num.label is preserved
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
-      num.var = factor(num.var, levels = num.label),
+      Variable = factor(Variable, levels = num.label),
       by = forcats::fct_relevel(by, "Total", after = Inf)
     ) %>%
-    dplyr::arrange(num.var)
+    dplyr::arrange(Variable)
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
@@ -73,12 +73,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   # Formatted table with selected dispersion variable
   formatted <- raw %>%
     dplyr::mutate_if(is.numeric, round, digits = digits) %>%
-    dplyr::transmute(
-      Variable = num.var,
-      by,
+    dplyr::mutate(
       !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
       `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
-    )
+    ) %>%
+    dplyr::select(-c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75")) %>%
+    dplyr::select(-.data$Missing, .data$Missing)
   if ("Missing" %in% names(formatted)) {
     formatted <- formatted %>% dplyr::mutate_at("Missing", as.character)
   }
