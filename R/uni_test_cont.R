@@ -30,7 +30,6 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     tibble::add_column(by = "Total", .before = 1) %>%
     tibble::rownames_to_column("num.var")
   total_count <- table(ind) # counts for each level in the factor `by`
-  ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
   # Choose parametric/non-parametric statistical test
   switch(match.arg(stats),
