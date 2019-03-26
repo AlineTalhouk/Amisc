@@ -19,11 +19,11 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, per = "col",
   ind <- fac.dat[, by]
   res <- NULL
   for (i in seq_along(fac.var)) {
-    res <- rbind(res, sum_stats_cat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B)$tots)
+    res <- rbind(res, sum_stats_cat(factor(fac.dat[, fac.var[i]]), fac.var[i], fac.label[i], ind, level_num, digits, per, p.digits, showMissing, simulate.p.value, B))
   }
-  Row.Insert <- c(rep("", ncol(res) - 1), "PearsonChi_square")
-  res <- rbind(Row.Insert, res)
-  return(list(formatted = res))
+  row_header <- c(rep("", ncol(res) - 1), "PearsonChi_square")
+  formatted <- rbind(row_header, res)
+  tibble::lst(formatted)
 }
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
@@ -63,5 +63,5 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
       PValue = c(format(round(test, p.digits), nsmall = p.digits), rep("", nrow(.) - 1))
     ) %>%
     dplyr::select(c("Variable", "Levels", levels(ind), "Total", "PValue"))
-  tibble::lst(count, tots)
+  tots
 }
