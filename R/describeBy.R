@@ -77,9 +77,17 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
     final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
   }
 
-  # Add facet total counts to row header
+  # Add facet total counts and percentages to row header
   if (ShowTotal) {
-    final[1, 2:(length(final) - 1)] <- c("N", table(facets), nrow(facets))
+    counts <- c(table(facets), nrow(facets))
+    percents <- scales::percent(
+      x = counts / nrow(facets),
+      accuracy = 10 ^ -(digits),
+      prefix = "(",
+      suffix = "%)"
+    )
+    row_header <- c("N (%)", paste(counts, percents))
+    final[1, 2:(length(final) - 1)] <- row_header
   }
   final
 }
