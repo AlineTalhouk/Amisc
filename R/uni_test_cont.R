@@ -31,12 +31,16 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   TotCount <- table(ind) # Count total number of each level in the factor column `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
-  # Run statistical test and obtain p-value
-  f <- switch(
-    test.type,
-    parametric = stats::oneway.test,
-    `non-parametric` = stats::kruskal.test
-  )
+  # Choose parametric/non-parametric statistical test
+  switch(test.type,
+         parametric = {
+           f <- stats::oneway.test
+           test_name <- "OneWay_Test"
+         },
+         `non-parametric` = {
+           f <- stats::kruskal.test
+           test_name <- "Kruskal_Wallis"
+         })
   test <- apply(df, 2, function(x) round(f(x ~ ind)$p.value, p.digits))
 
   # Order num.var by num.label, we need to change num.label as a factor and
@@ -92,44 +96,20 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   formatted$Variable <- ifelse(pracma::mod(1:nrow(formatted), ifelse(showMissing, 3, 2)) == 1, paste0("**", formatted$Variable, "**"), "")
 
   if (ShowTotal) {
-    # If we would like to see the total numbers
-    if (test.type == "non-parametric") {
-      formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      # Add the total number
-      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if (length(num.dat[, by]) > sum(total_count)) {
-        MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
-        Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "Kruskal_Wallis"))
-        print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
-      } else {
-        Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), "Kruskal_Wallis")
-      }
-    } else if (test.type == "parametric") {
-      formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      # Add the total number
-      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      if (length(num.dat[, by]) > sum(total_count)) {
-        MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
-        Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), "OneWay_Test"))
-        print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
-      } else {
-        Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), "OneWay_Test")
-      }
+    formatted$PValue <- as.vector(rbind(format(as.character(round(test, digits = p.digits)), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+    # Add the total number
+    formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+    if (length(num.dat[, by]) > sum(total_count)) {
+      MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
+      Row.Insert <- c("", "N", total_count, c(length(num.dat[, by]), test_name))
+      print(paste(as.character(MissingNumber), "missing in the Input Argument", as.character(by), ". "))
     } else {
-      stop("test.type should be either non-parametric or parametric")
+      Row.Insert <- c("", "N", c(total_count, length(num.dat[, by])), test_name)
     }
   } else {
-    if (test.type == "non-parametric") {
-      formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      Row.Insert <- c(rep("", level_num + 3), "Kruskal_Wallis")
-    } else if (test.type == "parametric") {
-      formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
-      formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
-      Row.Insert <- c(rep("", level_num + 3), "OneWay_Test")
-    } else {
-      stop("test.type should be either non-parametric or parametric")
-    }
+    formatted$PValue <- as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+    formatted <- formatted %>% dplyr::mutate_if(is.factor, as.character) # Change the factor column into character to prepare for row inserting
+    Row.Insert <- c(rep("", level_num + 3), test_name)
   }
   formatted <- DataCombine::InsertRow(formatted, NewRow = Row.Insert, RowNum = 1)
   tibble::lst(raw, formatted)
