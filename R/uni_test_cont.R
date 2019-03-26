@@ -28,7 +28,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
     as.data.frame() %>%
     tibble::add_column(by = "Total", .before = 1) %>%
     tibble::rownames_to_column("num.var")
-  TotCount <- table(ind) # Count total number of each level in the factor column `by`
+  total_count <- table(ind) # counts for each level in the factor `by`
   ind_names <- attributes(TotCount)$dimnames$ind # a vector all level names
 
   # Choose parametric/non-parametric statistical test
@@ -85,12 +85,6 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, dispersion = "sd",
   formatted <- formatted %>%
     tidyr::gather(key = Levels, , -1:-2, factor_key = TRUE) %>%
     tidyr::spread(by, value)
-
-  # Total counts
-  total_count <- c()
-  for (i in 3:ncol(formatted)) {
-    total_count <- c(total_count, TotCount[which(colnames(formatted)[i] == ind_names)])
-  }
 
   # Add bold formatting to variable names
   formatted$Variable <- ifelse(pracma::mod(1:nrow(formatted), ifelse(showMissing, 3, 2)) == 1, paste0("**", formatted$Variable, "**"), "")
