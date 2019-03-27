@@ -40,8 +40,8 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     purrr::map_dbl(~ f(. ~ ind)$p.value) %>%
     scales::pvalue(accuracy = 10 ^ (-p.digits))
 
-  # Order num.var by num.label, we need to change num.label as a factor and
-  # manually set the level so that the order of num.label is preserved
+  # Combine group/total stats and reorder Variable by num.label
+  # Place total stats per variable after group stats
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
       Variable = factor(.data$Variable, levels = num.label),
@@ -93,10 +93,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     rbind(row_header, .)
 
   # Indicate missing inputs if applicable
-  total_count <- table(ind) # counts for each level in the factor `by`
-  if (length(ind) > sum(total_count)) {
-    MissingNumber <- as.character(length(ind) - sum(total_count))
-    print(paste0(MissingNumber, " missing in the Input Argument ", by, "."))
+  total_count <- sum(table(ind))
+  if (length(ind) > total_count) {
+    n_missing <- length(ind) - total_count
+    message(n_missing, " missing in 'by' argument ", sQuote(by), ".")
   }
   tibble::lst(raw, formatted)
 }
