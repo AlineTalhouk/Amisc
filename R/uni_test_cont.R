@@ -10,15 +10,11 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
                           dispersion = c("sd", "se"), digits = 0, p.digits = 3,
                           showMissing,
                           stats = c("parametric", "non-parametric")) {
-  # Verify `by` is a factor and store number of distinct levels
-  if (is.factor(num.dat[, by])) {
-    level_num <- nlevels(num.dat[, by])
-  } else {
-    stop("Argument 'by' must be of type factor")
-  }
+  # Verify `by` is a factor and return number of levels
+  ind <- num.dat[, by]
+  level_num <- check_factor(ind)
 
   # Group and total continuous stats
-  ind <- num.dat[, by]
   df <- data.frame(num.dat[, num.var, drop = FALSE])
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
@@ -97,8 +93,8 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
 
   # Indicate missing inputs if applicable
   total_count <- table(ind) # counts for each level in the factor `by`
-  if (length(num.dat[, by]) > sum(total_count)) {
-    MissingNumber <- as.character(length(num.dat[, by]) - sum(total_count))
+  if (length(ind) > sum(total_count)) {
+    MissingNumber <- as.character(length(ind) - sum(total_count))
     print(paste0(MissingNumber, " missing in the Input Argument ", by, "."))
   }
   tibble::lst(raw, formatted)
