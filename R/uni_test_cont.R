@@ -18,7 +18,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   df <- num.dat[, num.var, drop = FALSE]
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
-    purrr::imap_dfr(~ data.frame(Variable = .y, Levels = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
+    purrr::imap_dfr(~ data.frame(
+      Variable = .y,
+      Levels = names(.x),
+      purrr::invoke(rbind, .x),
+      stringsAsFactors = FALSE
+    ))
   total_stats <- df %>%
     purrr::map(sum_stats_cont) %>%
     purrr::invoke(rbind, .) %>%
@@ -36,9 +41,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
            f <- stats::kruskal.test
            test_name <- "Kruskal_Wallis"
          })
-  pvals <- df %>%
-    purrr::map_dbl(~ f(. ~ ind)$p.value) %>%
-    scales::pvalue(accuracy = 10 ^ (-p.digits))
+  pvals <- purrr::map_dbl(df, ~ f(. ~ ind)$p.value)
 
   # Combine group/total stats and reorder Variable by num.label
   # Place total stats per variable after group stats
@@ -86,9 +89,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     tidyr::gather(key = "Stats", , -1:-2) %>%
     tidyr::spread("Levels", "value") %>%
     dplyr::mutate(
-      Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
-      PValue = as.vector(rbind(pvals, matrix(rep("", ifelse(showMissing, 2, 1) * length(pvals)), ncol = length(pvals))))
+      PValue = pvals[match(.data$Variable, names(pvals))],
+      first = !duplicated(.data$Variable),
+      Variable = ifelse(.data$first, paste0("**", .data$Variable, "**"), ""),
+      PValue = ifelse(.data$first, scales::pvalue(.data$PValue, accuracy = 10 ^ (-p.digits)), "")
     ) %>%
+    dplyr::select(-"first") %>%
     dplyr::rename(!!"Levels" := .data$Stats) %>%
     rbind(row_header, .)
 
@@ -101,7 +107,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   tibble::lst(raw, formatted)
 }
 
-# Main function used to calculate Mean, SD, SEM, Median, IQR and Number of Missings
+# Main function used to calculate Mean, SD, SEM, Median, IQR and Missing
 sum_stats_cont <- function(x) {
   c(
     Mean = mean(x, na.rm = TRUE),
