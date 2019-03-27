@@ -45,7 +45,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
       Variable = factor(.data$Variable, labels = num.label),
-      Levels = forcats::fct_relevel(.data$Levels, "Total", after = Inf)
+      Levels = factor(.data$Levels, levels = c(levels(ind), "Total"))
     ) %>%
     dplyr::arrange(.data$Variable)
 

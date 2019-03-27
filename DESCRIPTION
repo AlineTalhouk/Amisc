@@ -24,7 +24,6 @@ Depends:
     R (>= 3.2.0)
 Imports:
     dplyr,
-    forcats,
     magrittr,
     purrr,
     rlang,
