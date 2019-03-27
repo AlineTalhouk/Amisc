@@ -49,32 +49,29 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   }
 
   # Separate selected variables into continuous and categorical
-  num.var <- num.dat <- fac.var <- fac.dat <- NULL
+  num.dat <- fac.dat <- NULL
   if (length(num.ind) > 0) {
     # Continuous: numeric and integer types
     num.var <- names(types)[num.ind]
     num.label <- var.labels[num.ind]
     num.dat <- cbind(var.dat[, num.var, drop = FALSE], facets)
+    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
   }
   if (length(fac.ind) > 0) {
     # Categorical: character and factor types
     fac.var <- names(types)[fac.ind]
     fac.label <- var.labels[fac.ind]
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
+    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
-  # Use uni_test_cont and/or uni_test_cat to obtain summary statistics
+  # Combine summary statistics
   if (!(is.null(fac.dat) | is.null(num.dat))) {
-    # Data is a mix of continuous and categorical variables, apply uni_test_cont and uni_test_cat respectively
-    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
-    cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
-    final <- rbind(num.formatted, cat.formatted)
+    final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
   } else if (is.null(fac.dat)) {
-    # Data is only continuous, only apply uni_test_cont
-    final <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
+    final <- num.table  # Data has only continuous
   } else if (is.null(num.dat)) {
-    # Data is only categorical, only apply uni_test_cat
-    final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
+    final <- fac.table  # Data has only categorical
   }
 
   # Add facet total counts and percentages to row header
