@@ -14,7 +14,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
   level_num <- check_factor(ind)
 
   # Group and total continuous stats
-  df <- num.dat[, num.var, drop = FALSE]
+  df <- num.dat[, num.var, drop = FALSE] %>% dplyr::rename_all(~ num.label)
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
     purrr::imap_dfr(~ data.frame(
