@@ -45,7 +45,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
       Variable = factor(.data$Variable, levels = num.label),
-      Levels = forcats::fct_relevel(Levels, "Total", after = Inf)
+      Levels = forcats::fct_relevel(.data$Levels, "Total", after = Inf)
     ) %>%
     dplyr::arrange(.data$Variable)
 
@@ -89,7 +89,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
       Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
       PValue = as.vector(rbind(pvals, matrix(rep("", ifelse(showMissing, 2, 1) * length(pvals)), ncol = length(pvals))))
     ) %>%
-    dplyr::rename(Levels = Stats) %>%
+    dplyr::rename(!!"Levels" := .data$Stats) %>%
     rbind(row_header, .)
 
   # Indicate missing inputs if applicable
