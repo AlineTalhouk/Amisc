@@ -91,7 +91,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
       PValue = pvals[match(.data$Variable, names(pvals))],
       first = !duplicated(.data$Variable),
       Variable = ifelse(.data$first, paste0("**", .data$Variable, "**"), ""),
-      PValue = ifelse(.data$first, scales::pvalue(.data$PValue, accuracy = 10 ^ (-p.digits)), "")
+      PValue = ifelse(.data$first, round_pvalue(.data$PValue, p.digits), "")
     ) %>%
     dplyr::select(-"first") %>%
     dplyr::rename(!!"Levels" := .data$Stats) %>%

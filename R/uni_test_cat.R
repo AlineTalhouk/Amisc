@@ -43,9 +43,7 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
   }
   tots <- per.val %>%
     as.numeric() %>%
-    scales::percent(accuracy = 10 ^ -(digits),
-                    prefix = "(",
-                    suffix = "%)") %>%
+    round_percent(digits) %>%
     paste(stats::addmargins(count, 2), .) %>%
     matrix(nrow = nrow(count),
            dimnames = list(levels(x), c(levels(ind), "Total")))
@@ -62,7 +60,7 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
     dplyr::mutate(
       Variable = c(paste0("**", var.lab, "**"), rep("", nrow(.) - 1)),
       Levels = rownames(.),
-      PValue = c(scales::pvalue(pval, accuracy = 10 ^ (-p.digits)), rep("", nrow(.) - 1))
+      PValue = c(round_pvalue(pval, p.digits), rep("", nrow(.) - 1))
     ) %>%
     dplyr::select(c("Variable", "Levels", levels(ind), "Total", "PValue"))
   tots
