@@ -111,6 +111,6 @@ test_that("totals can be suppressed", {
 
 test_that("missingness is reported in splitting variable", {
   mtcars$cyl[1] <- NA
-  expect_output(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric"), "missing")
-  expect_output(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric"), "missing")
+  expect_message(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric"), "missing")
+  expect_message(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric"), "missing")
 })
