@@ -66,12 +66,12 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   }
 
   # Combine summary statistics
-  if (!(is.null(fac.dat) | is.null(num.dat))) {
-    final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
-  } else if (is.null(fac.dat)) {
+  if (is.null(fac.dat)) {
     final <- num.table  # Data has only continuous
   } else if (is.null(num.dat)) {
     final <- fac.table  # Data has only categorical
+  } else {
+    final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
   }
 
   # Add facet total counts and percentages to row header
