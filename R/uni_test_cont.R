@@ -15,7 +15,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   level_num <- check_factor(ind)
 
   # Group and total continuous stats
-  df <- data.frame(num.dat[, num.var, drop = FALSE])
+  df <- num.dat[, num.var, drop = FALSE]
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
     purrr::imap_dfr(~ data.frame(Variable = .y, by = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
