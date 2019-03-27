@@ -103,7 +103,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
     n_missing <- length(ind) - total_count
     message(n_missing, " missing in 'by' argument ", sQuote(by), ".")
   }
-  tibble::lst(raw, formatted)
+  formatted
 }
 
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Missing

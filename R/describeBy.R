@@ -66,15 +66,15 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   # Use uni_test_cont and/or uni_test_cat to obtain summary statistics
   if (!(is.null(fac.dat) | is.null(num.dat))) {
     # Data is a mix of continuous and categorical variables, apply uni_test_cont and uni_test_cat respectively
-    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)$formatted
-    cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)$formatted
+    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
+    cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
     final <- rbind(num.formatted, cat.formatted)
   } else if (is.null(fac.dat)) {
     # Data is only continuous, only apply uni_test_cont
-    final <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)$formatted
+    final <- uni_test_cont(num.dat, num.var, num.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
   } else if (is.null(num.dat)) {
     # Data is only categorical, only apply uni_test_cat
-    final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)$formatted
+    final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, showMissing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
   # Add facet total counts and percentages to row header

@@ -23,7 +23,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, showMissing,
       sum_stats_cat, x = ..1, var = ..2, var.lab = ..3, stats_args
     )) %>%
     rbind(row_header, .)
-  tibble::lst(formatted)
+  formatted
 }
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
