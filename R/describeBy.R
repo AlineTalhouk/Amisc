@@ -49,7 +49,6 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   }
 
   # Separate selected variables into continuous and categorical
-  num.dat <- fac.dat <- NULL
   if (length(num.ind) > 0) {
     # Continuous: numeric and integer types
     num.var <- names(types)[num.ind]
@@ -66,9 +65,9 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   }
 
   # Combine summary statistics
-  if (is.null(fac.dat)) {
+  if (!exists("fac.table")) {
     final <- num.table  # Data has only continuous
-  } else if (is.null(num.dat)) {
+  } else if (!exists("num.table")) {
     final <- fac.table  # Data has only categorical
   } else {
     final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
