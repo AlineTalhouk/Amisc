@@ -18,12 +18,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   df <- num.dat[, num.var, drop = FALSE]
   group_stats <- df %>%
     purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
-    purrr::imap_dfr(~ data.frame(Variable = .y, by = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
+    purrr::imap_dfr(~ data.frame(Variable = .y, Levels = names(.x), purrr::invoke(rbind, .x), stringsAsFactors = FALSE))
   total_stats <- df %>%
     purrr::map(sum_stats_cont) %>%
     purrr::invoke(rbind, .) %>%
     as.data.frame() %>%
-    tibble::add_column(by = "Total", .before = 1) %>%
+    tibble::add_column(Levels = "Total", .before = 1) %>%
     tibble::rownames_to_column("Variable")
 
   # Choose parametric/non-parametric statistical test, format p-values
@@ -45,7 +45,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   raw <- rbind(group_stats, total_stats) %>%
     dplyr::mutate(
       Variable = factor(.data$Variable, levels = num.label),
-      by = forcats::fct_relevel(by, "Total", after = Inf)
+      Levels = forcats::fct_relevel(Levels, "Total", after = Inf)
     ) %>%
     dplyr::arrange(.data$Variable)
 
@@ -83,12 +83,13 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
   # Pivot table, bold variable names, add p-values and row header
   row_header <- c(rep("", level_num + 3), test_name)
   formatted <- formatted %>%
-    tidyr::gather(key = "Levels", , -1:-2) %>%
-    tidyr::spread("by", "value") %>%
+    tidyr::gather(key = "Stats", , -1:-2) %>%
+    tidyr::spread("Levels", "value") %>%
     dplyr::mutate(
       Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
       PValue = as.vector(rbind(pvals, matrix(rep("", ifelse(showMissing, 2, 1) * length(pvals)), ncol = length(pvals))))
     ) %>%
+    dplyr::rename(Levels = Stats) %>%
     rbind(row_header, .)
 
   # Indicate missing inputs if applicable
