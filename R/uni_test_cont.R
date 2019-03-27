@@ -6,9 +6,8 @@
 #' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data :=
 #' @noRd
-uni_test_cont <- function(num.dat, num.var, num.label, by,
-                          dispersion = c("sd", "se"), digits = 0, p.digits = 3,
-                          showMissing,
+uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
+                          digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and return number of levels
   ind <- num.dat[, by]

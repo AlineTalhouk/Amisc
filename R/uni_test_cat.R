@@ -5,8 +5,8 @@
 #' @param by factor variable passed as `by1` from `describeBy`
 #' @return a formatted summary of categorical variables
 #' @noRd
-uni_test_cat <- function(fac.dat, fac.var, fac.label, by, per = "col",
-                         digits = 0, p.digits = 3, showMissing,
+uni_test_cat <- function(fac.dat, fac.var, fac.label, by, showMissing,
+                         digits = 0, p.digits = 3, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor and return number of levels
   ind <- fac.dat[, by]

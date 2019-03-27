@@ -4,11 +4,10 @@
 \alias{describeBy}
 \title{Descriptive statistics}
 \usage{
-describeBy(data, var.names, var.labels = var.names, by1,
-  dispersion = c("sd", "se"), ShowTotal = TRUE, by2 = NULL,
-  per = "col", digits = 0, p.digits = 3, Missing = TRUE,
-  stats = c("parametric", "non-parametric"), simulate.p.value = FALSE,
-  B = 2000)
+describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
+  ShowTotal = TRUE, Missing = TRUE, digits = 0, p.digits = 3,
+  dispersion = c("sd", "se"), stats = c("parametric",
+  "non-parametric"), per = "col", simulate.p.value = FALSE, B = 2000)
 }
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
@@ -19,23 +18,23 @@ describeBy(data, var.names, var.labels = var.names, by1,
 
 \item{by1}{factor to split other variables by in \code{data}}
 
-\item{dispersion}{measure of variability, either "sd" (default) or "se".}
+\item{by2}{optional second factor to split other variables by}
 
 \item{ShowTotal}{logical; if \code{TRUE}, it shows the total number of each level
 w/ \code{by1}.}
 
-\item{by2}{optional second factor to split other variables by}
-
-\item{per}{print column ("col") or row ("row") percentages}
+\item{Missing}{logical; if \code{TRUE}, shows missing value counts, if they exist}
 
 \item{digits}{number of digits to round descriptive statistics}
 
 \item{p.digits}{number of digits to round univariable test p-value}
 
-\item{Missing}{logical; if \code{TRUE}, shows missing value counts, if they exist}
+\item{dispersion}{measure of variability, either "sd" (default) or "se".}
 
 \item{stats}{either "parametric" (default) or "non-parametric" univariable
 tests are performed}
+
+\item{per}{print column ("col") or row ("row") percentages}
 
 \item{simulate.p.value}{passed to \code{chisq.test}. Only relevant for categorical
 variables.}
@@ -57,7 +56,7 @@ factor \code{by1}.
 mtcars$cyl <- as.factor(mtcars$cyl)
 mtcars$vs <- as.character(mtcars$vs)
 Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
-dispersion = "sd", Missing = TRUE, stats = "parametric")
+Missing = TRUE, dispersion = "sd", stats = "parametric")
 }
 \author{
 Aline Talhouk
