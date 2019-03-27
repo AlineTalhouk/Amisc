@@ -5,7 +5,7 @@
 #' @param by factor variable passed as `by1` from `describeBy`
 #' @return a formatted summary of categorical variables
 #' @noRd
-uni_test_cat <- function(fac.dat, fac.var, fac.label, by, showMissing,
+uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing,
                          digits = 0, p.digits = 3, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor and return number of levels
@@ -13,7 +13,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, showMissing,
   level_num <- check_factor(ind)
 
   # Obtain Summary Data
-  stats_args <- tibble::lst(ind, level_num, digits, per, p.digits, showMissing,
+  stats_args <- tibble::lst(ind, level_num, digits, per, p.digits, Missing,
                             simulate.p.value, B)
   row_header <- c(rep("", level_num + 3), "PearsonChi_square")
   formatted <- fac.dat %>%
@@ -28,7 +28,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, showMissing,
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
 sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
-                          p.digits, showMissing, simulate.p.value, B) {
+                          p.digits, Missing, simulate.p.value, B) {
   x <- droplevels(x) # drop unused levels from a factor
   ind <- droplevels(ind)
   count <- table(x, ind, dnn = list(var, by))
@@ -48,9 +48,9 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
     matrix(nrow = nrow(count),
            dimnames = list(levels(x), c(levels(ind), "Total")))
 
-  # Missing cases will only be shown if showMissing == TRUE and there are indeed missing ones
+  # Missing cases will only be shown if Missing == TRUE and there are indeed missing ones
   na.r <- stats::addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -level_num - 1]
-  if (sum(na.r) != 0 && showMissing) {
+  if (sum(na.r) != 0 && Missing) {
     tots <- rbind(tots, Missing = na.r)
   }
   # re-arrange the matrix so that it will be able to rbind with continuous part

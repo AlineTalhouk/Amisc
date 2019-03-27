@@ -6,7 +6,7 @@
 #' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data :=
 #' @noRd
-uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
+uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
                           digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and return number of levels
@@ -53,9 +53,8 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, showMissing,
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
-  if (sum(raw[["Missing"]]) == 0 | !showMissing) {
+  if (sum(raw[["Missing"]]) == 0 | !Missing) {
     raw <- dplyr::select(raw, -.data$Missing)
-    showMissing <- FALSE # set FALSE so that missing elements will not show up
   }
 
   # Choose dispersion parameter
