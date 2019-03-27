@@ -60,13 +60,13 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
     tots <- rbind(tots, Missing = na.r)
   }
   # re-arrange the matrix so that it will be able to rbind with continuous part
-  test <- stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value
+  pval <- stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value
   tots <- tots %>%
     as.data.frame(stringsAsFactors = FALSE) %>%
     dplyr::mutate(
       Variable = c(paste0("**", var.lab, "**"), rep("", nrow(.) - 1)),
       Levels = rownames(.),
-      PValue = c(format(round(test, p.digits), nsmall = p.digits), rep("", nrow(.) - 1))
+      PValue = c(scales::pvalue(pval, accuracy = 10 ^ (-p.digits)), rep("", nrow(.) - 1))
     ) %>%
     dplyr::select(c("Variable", "Levels", levels(ind), "Total", "PValue"))
   tots

@@ -30,7 +30,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     tibble::add_column(by = "Total", .before = 1) %>%
     tibble::rownames_to_column("Variable")
 
-  # Choose parametric/non-parametric statistical test
+  # Choose parametric/non-parametric statistical test, format p-values
   switch(match.arg(stats),
          parametric = {
            f <- stats::oneway.test
@@ -40,7 +40,9 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
            f <- stats::kruskal.test
            test_name <- "Kruskal_Wallis"
          })
-  test <- apply(df, 2, function(x) round(f(x ~ ind)$p.value, p.digits))
+  pvals <- df %>%
+    purrr::map_dbl(~ f(. ~ ind)$p.value) %>%
+    scales::pvalue(accuracy = 10 ^ (-p.digits))
 
   # Order num.var by num.label, we need to change num.label as a factor and
   # manually set the level so that the order of num.label is preserved
@@ -90,7 +92,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by,
     tidyr::spread("by", "value") %>%
     dplyr::mutate(
       Variable = ifelse(seq_along(.data$Variable) %% unique(table(.data$Variable)) == 1, paste0("**", .data$Variable, "**"), ""),
-      PValue = as.vector(rbind(format(round(test, digits = p.digits), nsmall = p.digits), matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
+      PValue = as.vector(rbind(pvals, matrix(rep("", ifelse(showMissing, 2, 1) * length(test)), ncol = length(test))))
     ) %>%
     dplyr::mutate_if(is.factor, as.character) %>%
     rbind(row_header, .)
