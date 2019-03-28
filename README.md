@@ -44,19 +44,19 @@ Amisc::describeBy(data = mtcars, var.names = "vs", by1 = "cyl",
                   dispersion = "sd", Missing = TRUE, stats = "parametric")
 #> Warning in stats::chisq.test(count, simulate.p.value = simulate.p.value, :
 #> Chi-squared approximation may be incorrect
-#>   Variable Levels        4       6         8    Total            PValue
-#> 1                                                     PearsonChi_square
-#> 2   **vs**      0   1 (9%) 3 (43%) 14 (100%) 18 (56%)             0.000
-#> 3               1 10 (91%) 4 (57%)    0 (0%) 14 (44%)
+#>   Variable Levels        4       6         8     Total            PValue
+#> 1           N (%) 11 (34%) 7 (22%)  14 (44%) 32 (100%) PearsonChi_square
+#> 2   **vs**      0   1 (9%) 3 (43%) 14 (100%)  18 (56%)            <0.001
+#> 3               1 10 (91%) 4 (57%)    0 (0%)  14 (44%)
 # numerical
 Amisc::describeBy(data = mtcars, var.names = "hp", by1 = "cyl",
                   dispersion = "sd", Missing = TRUE, stats = "parametric")
 #>   Variable       Levels            4               6               8
-#> 1                     N           11               7              14
+#> 1                 N (%)     11 (34%)         7 (22%)        14 (44%)
 #> 2   **hp**    Mean (sd)      83 (21)        122 (24)        209 (51)
 #> 3          Median (IQR) 91 (66 - 96) 110 (110 - 123) 192 (176 - 241)
 #>            Total      PValue
-#> 1             32 OneWay_Test
-#> 2       147 (69)           0
+#> 1      32 (100%) OneWay_Test
+#> 2       147 (69)      <0.001
 #> 3 123 (96 - 180)
 ```
