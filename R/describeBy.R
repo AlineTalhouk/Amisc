@@ -9,16 +9,16 @@
 #' @param var.names variable names of interest in `data`
 #' @param var.labels variable descriptions. Uses `var.names` by default.
 #' @param by1 factor to split other variables by in `data`
-#' @param dispersion measure of variability, either "se" (default) or "sd".
+#' @param by2 optional second factor to split other variables by
 #' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
 #'   w/ `by1`.
-#' @param by2 optional second factor to split other variables by
-#' @param per print column ("col") or row ("row") percentages
+#' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
-#' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
-#' @param stats either "parametric" or "non-parametric" univariable tests are
-#'   performed
+#' @param dispersion measure of variability, either "sd" (default) or "se".
+#' @param stats either "parametric" (default) or "non-parametric" univariable
+#'   tests are performed
+#' @param per print column ("col") or row ("row") percentages
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
 #' @param B passed to `chisq.test`. Only relevant for categorical variables.
@@ -30,12 +30,12 @@
 #' mtcars$cyl <- as.factor(mtcars$cyl)
 #' mtcars$vs <- as.character(mtcars$vs)
 #' Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
-#' dispersion = "sd", Missing = TRUE, stats = "parametric")
-describeBy <- function(data, var.names, var.labels = var.names, by1,
-                       dispersion = "se", ShowTotal = TRUE, by2 = NULL,
-                       per = "col", digits = 0, p.digits = 3, Missing = TRUE,
-                       stats = "parametric", simulate.p.value = FALSE,
-                       B = 2000) {
+#' Missing = TRUE, dispersion = "sd", stats = "parametric")
+describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
+                       ShowTotal = TRUE, Missing = TRUE,
+                       digits = 0, p.digits = 3, dispersion = c("sd", "se"),
+                       stats = c("parametric", "non-parametric"),
+                       per = "col", simulate.p.value = FALSE, B = 2000) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -49,32 +49,36 @@ describeBy <- function(data, var.names, var.labels = var.names, by1,
   }
 
   # Separate selected variables into continuous and categorical
-  num.var <- num.dat <- fac.var <- fac.dat <- NULL
   if (length(num.ind) > 0) {
     # Continuous: numeric and integer types
     num.var <- names(types)[num.ind]
     num.label <- var.labels[num.ind]
     num.dat <- cbind(var.dat[, num.var, drop = FALSE], facets)
+    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
   }
   if (length(fac.ind) > 0) {
     # Categorical: character and factor types
     fac.var <- names(types)[fac.ind]
     fac.label <- var.labels[fac.ind]
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
+    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
-  # Use uni_test_cont and/or uni_test_cat to obtain summary statistics
-  if (!(is.null(fac.dat) | is.null(num.dat))) {
-    # Data is a mix of continuous and categorical variables, apply uni_test_cont and uni_test_cat respectively
-    num.formatted <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-    cat.formatted <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
-    final <- rbind(num.formatted, cat.formatted)
-  } else if (is.null(fac.dat)) {
-    # Data is only continuous, only apply uni_test_cont
-    final <- uni_test_cont(num.dat, num.var, num.label, by1, dispersion = dispersion, digits = digits, p.digits = p.digits, ShowTotal = ShowTotal, showMissing = Missing, test.type = stats)$formatted
-  } else if (is.null(num.dat)) {
-    # Data is only categorical, only apply uni_test_cat
-    final <- uni_test_cat(fac.dat, fac.var, fac.label, by1, per = per, digits = digits, p.digits = p.digits, simulate.p.value = simulate.p.value, B = B, showMissing = Missing)$formatted
+  # Combine summary statistics
+  if (!exists("fac.table")) {
+    final <- num.table  # Data has only continuous
+  } else if (!exists("num.table")) {
+    final <- fac.table  # Data has only categorical
+  } else {
+    final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
+  }
+
+  # Add facet total counts and percentages to row header
+  if (ShowTotal) {
+    counts <- c(table(facets), nrow(facets))
+    percents <- round_percent(counts / nrow(facets), digits)
+    row_header <- c("N (%)", paste(counts, percents))
+    final[1, 2:(length(final) - 1)] <- row_header
   }
   final
 }
