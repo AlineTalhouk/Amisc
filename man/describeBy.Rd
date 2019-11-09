@@ -32,7 +32,8 @@ describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
 \item{dispersion}{measure of variability, either "sd" (default) or "se".}
 
 \item{stats}{either "parametric" (default) or "non-parametric" univariable
-tests are performed}
+tests are performed for continuous variables. We use the parametric one-way
+test or the non-parametric Kruskal-Wallis test.}
 
 \item{per}{print column ("col") or row ("row") percentages}
 

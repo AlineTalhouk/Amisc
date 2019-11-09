@@ -17,7 +17,8 @@
 #' @param p.digits number of digits to round univariable test p-value
 #' @param dispersion measure of variability, either "sd" (default) or "se".
 #' @param stats either "parametric" (default) or "non-parametric" univariable
-#'   tests are performed
+#'   tests are performed for continuous variables. We use the parametric one-way
+#'   test or the non-parametric Kruskal-Wallis test.
 #' @param per print column ("col") or row ("row") percentages
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
