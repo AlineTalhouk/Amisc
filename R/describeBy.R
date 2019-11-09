@@ -96,7 +96,11 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   # Bold the variable names
   if (bold_var) {
     dplyr::mutate(final,
-                  Variable = ifelse(Variable == "", Variable, paste0("**", Variable, "**")))
+                  Variable = ifelse(
+                    .data$Variable == "",
+                    .data$Variable,
+                    paste0("**", .data$Variable, "**")
+                  ))
   } else {
     final
   }
