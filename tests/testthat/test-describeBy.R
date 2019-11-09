@@ -102,11 +102,11 @@ test_that("dispersion can be only se or sd", {
 })
 
 test_that("totals can be suppressed", {
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric", ShowTotal = FALSE)
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric", total = "none")
   expect_equal(dim(res), c(3, 7))
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", ShowTotal = FALSE)
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", total = "none")
   expect_equal(dim(res), c(3, 7))
-  expect_error(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "bayesian", ShowTotal = FALSE))
+  expect_error(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "bayesian", total = "none"))
 })
 
 test_that("missingness is reported in splitting variable", {
