@@ -7,7 +7,8 @@
 describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
   total = c("top", "bottom", "none"), Missing = TRUE, digits = 0,
   p.digits = 3, dispersion = c("sd", "se"), stats = c("parametric",
-  "non-parametric"), per = "col", simulate.p.value = FALSE, B = 2000)
+  "non-parametric"), per = "col", simulate.p.value = FALSE, B = 2000,
+  bold_var = TRUE)
 }
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
@@ -41,6 +42,10 @@ test or the non-parametric Kruskal-Wallis test.}
 variables.}
 
 \item{B}{passed to \code{chisq.test}. Only relevant for categorical variables.}
+
+\item{bold_var}{logical; if \code{TRUE}, the \code{Variable} names are wrapped in
+double asterisks. If the table is parsed by pandoc the variable names are
+in bold.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical

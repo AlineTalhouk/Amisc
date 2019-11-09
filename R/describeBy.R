@@ -23,6 +23,9 @@
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
 #' @param B passed to `chisq.test`. Only relevant for categorical variables.
+#' @param bold_var logical; if `TRUE`, the `Variable` names are wrapped in
+#'   double asterisks. If the table is parsed by pandoc the variable names are
+#'   in bold.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
@@ -36,7 +39,8 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        total = c("top", "bottom", "none"), Missing = TRUE,
                        digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
-                       per = "col", simulate.p.value = FALSE, B = 2000) {
+                       per = "col", simulate.p.value = FALSE, B = 2000,
+                       bold_var = TRUE) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -81,12 +85,19 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   } else {
     counts <- c(table(facets), nrow(facets))
     percents <- round_percent(counts / nrow(facets), digits)
-    tr <- c("**Total**", "N (%)", paste(counts, percents), "")
+    tr <- c("Total", "N (%)", paste(counts, percents), "")
     if (total == "top") {
       final <- rbind(tr, final)
     } else if (total == "bottom") {
       final <- rbind(final, tr)
     }
   }
-  final
+
+  # Bold the variable names
+  if (bold_var) {
+    dplyr::mutate(final,
+                  Variable = ifelse(Variable == "", Variable, paste0("**", Variable, "**")))
+  } else {
+    final
+  }
 }

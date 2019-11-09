@@ -56,7 +56,7 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
   tots <- tots %>%
     as.data.frame(stringsAsFactors = FALSE) %>%
     dplyr::mutate(
-      Variable = c(paste0("**", var.lab, "**"), rep("", nrow(.) - 1)),
+      Variable = c(var.lab, rep("", nrow(.) - 1)),
       Levels = rownames(.),
       PValue = c(round_pvalue(pval, p.digits), rep("", nrow(.) - 1))
     ) %>%
