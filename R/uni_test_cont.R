@@ -113,3 +113,16 @@ sum_stats_cont <- function(x) {
     Missing = sum(is.na(x))
   )
 }
+
+# Main function used to calculate Mean, SD, SEM, Median, IQR and Missing
+sum_stats_cont2 <- function(x) {
+  data.frame(
+    Mean = mean(x, na.rm = TRUE),
+    SD = stats::sd(x, na.rm = TRUE),
+    SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),
+    Median = stats::median(x, na.rm = TRUE),
+    IQR_25 = stats::quantile(x, 0.25, na.rm = TRUE, names = FALSE),
+    IQR_75 = stats::quantile(x, 0.75, na.rm = TRUE, names = FALSE),
+    Missing = sum(is.na(x))
+  )
+}
