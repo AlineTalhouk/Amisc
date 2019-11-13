@@ -30,14 +30,6 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
     tibble::add_column(Levels = "Total", .before = 1) %>%
     tibble::rownames_to_column("Variable")
 
-  # Choose parametric/non-parametric statistical test, format p-values
-  f <- switch(
-    match.arg(stats),
-    parametric = stats::oneway.test,
-    `non-parametric` = stats::kruskal.test
-  )
-  pvals <- purrr::map_dbl(df, ~ f(. ~ ind)$p.value)
-
   # Combine group/total stats and reorder Variable by num.label
   # Place total stats per variable after group stats
   raw <- rbind(group_stats, total_stats) %>%
@@ -78,7 +70,16 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
       dplyr::select(-"Missing", "Missing") %>%
       dplyr::mutate_at("Missing", as.character)
   }
-  # Pivot table, bold variable names, add p-values and row header
+
+  # Choose parametric/non-parametric statistical test, format p-values
+  f <- switch(
+    match.arg(stats),
+    parametric = stats::oneway.test,
+    `non-parametric` = stats::kruskal.test
+  )
+  pvals <- purrr::map_chr(df, ~ round_pvalue(f(. ~ ind)$p.value, p.digits))
+
+  # Pivot table and add p-values
   formatted <- formatted %>%
     tidyr::gather(key = "Stats", , -1:-2) %>%
     tidyr::spread("Levels", "value") %>%
@@ -86,7 +87,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
       PValue = pvals[match(.data$Variable, names(pvals))],
       first = !duplicated(.data$Variable),
       Variable = ifelse(.data$first, as.character(.data$Variable), ""),
-      PValue = ifelse(.data$first, round_pvalue(.data$PValue, p.digits), "")
+      PValue = ifelse(.data$first, .data$PValue, "")
     ) %>%
     dplyr::select(-"first") %>%
     dplyr::rename(!!"Levels" := .data$Stats)
