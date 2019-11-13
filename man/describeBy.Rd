@@ -4,11 +4,23 @@
 \alias{describeBy}
 \title{Descriptive statistics}
 \usage{
-describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
-  total = c("top", "bottom", "none"), Missing = TRUE, digits = 0,
-  p.digits = 3, dispersion = c("sd", "se"), stats = c("parametric",
-  "non-parametric"), per = "col", simulate.p.value = FALSE, B = 2000,
-  bold_var = TRUE)
+describeBy(
+  data,
+  var.names,
+  var.labels = var.names,
+  by1,
+  by2 = NULL,
+  total = c("top", "bottom", "none"),
+  Missing = TRUE,
+  digits = 0,
+  p.digits = 3,
+  dispersion = c("sd", "se"),
+  stats = c("parametric", "non-parametric"),
+  per = "col",
+  simulate.p.value = FALSE,
+  B = 2000,
+  bold_var = TRUE
+)
 }
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
