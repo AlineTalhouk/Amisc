@@ -74,7 +74,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
     `non-parametric` = stats::kruskal.test
   )
   pvals <- df %>%
-    dplyr::summarize_if(is.double, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
+    dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
     purrr::map_chr(round_pvalue, p.digits = p.digits)
 
   # Pivot table and add p-values
