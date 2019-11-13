@@ -67,11 +67,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
   # Formatted table with selected dispersion variable
   formatted <- raw %>%
     dplyr::mutate_if(is.numeric, round, digits = digits) %>%
-    dplyr::mutate(
+    dplyr::transmute(
+      Variable,
+      Levels,
       !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
       `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
-    ) %>%
-    dplyr::select(-c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75"))
+    )
   if ("Missing" %in% names(formatted)) {
     formatted <- formatted %>%
       dplyr::select(-"Missing", "Missing") %>%
