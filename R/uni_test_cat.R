@@ -21,7 +21,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing,
     purrr::pmap_dfr(~ purrr::invoke(
       sum_stats_cat, x = ..1, var = ..2, var.lab = ..3, stats_args
     ))
-  formatted
+  tibble::as_tibble(formatted)
 }
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
