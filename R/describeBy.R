@@ -10,18 +10,22 @@
 #' @param var.labels variable descriptions. Uses `var.names` by default.
 #' @param by1 factor to split other variables by in `data`
 #' @param by2 optional second factor to split other variables by
-#' @param ShowTotal logical; if `TRUE`, it shows the total number of each level
-#'   w/ `by1`.
+#' @param total add a row showing the total counts of each `by1` level at the
+#'   `top` or `bottom` of the table. Setting `none` hides the total row.
 #' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
 #' @param dispersion measure of variability, either "sd" (default) or "se".
 #' @param stats either "parametric" (default) or "non-parametric" univariable
-#'   tests are performed
+#'   tests are performed for continuous variables. We use the parametric one-way
+#'   test or the non-parametric Kruskal-Wallis test.
 #' @param per print column ("col") or row ("row") percentages
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
 #' @param B passed to `chisq.test`. Only relevant for categorical variables.
+#' @param bold_var logical; if `TRUE`, the `Variable` names are wrapped in
+#'   double asterisks. If the table is parsed by pandoc the variable names are
+#'   in bold.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
@@ -32,10 +36,11 @@
 #' Amisc::describeBy(data = mtcars, var.names = c("vs", "hp"), by1 = "cyl",
 #' Missing = TRUE, dispersion = "sd", stats = "parametric")
 describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
-                       ShowTotal = TRUE, Missing = TRUE,
+                       total = c("top", "bottom", "none"), Missing = TRUE,
                        digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
-                       per = "col", simulate.p.value = FALSE, B = 2000) {
+                       per = "col", simulate.p.value = FALSE, B = 2000,
+                       bold_var = TRUE) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -73,12 +78,30 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     final <- rbind(num.table, fac.table)  # Data has both continuous/categorical
   }
 
-  # Add facet total counts and percentages to row header
-  if (ShowTotal) {
+  # Add row for total counts and percentages
+  total <- match.arg(total)
+  if (total == "none") {
+    return(final)
+  } else {
     counts <- c(table(facets), nrow(facets))
     percents <- round_percent(counts / nrow(facets), digits)
-    row_header <- c("N (%)", paste(counts, percents))
-    final[1, 2:(length(final) - 1)] <- row_header
+    tr <- c("Total", "N (%)", paste(counts, percents), "")
+    if (total == "top") {
+      final <- rbind(tr, final)
+    } else if (total == "bottom") {
+      final <- rbind(final, tr)
+    }
   }
-  final
+
+  # Bold the variable names
+  if (bold_var) {
+    dplyr::mutate(final,
+                  Variable = ifelse(
+                    .data$Variable == "",
+                    .data$Variable,
+                    paste0("**", .data$Variable, "**")
+                  ))
+  } else {
+    final
+  }
 }

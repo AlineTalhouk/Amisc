@@ -10,46 +10,31 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
                           digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and return number of levels
-  ind <- num.dat[, by]
-  level_num <- check_factor(ind)
+  level_num <- check_factor(num.dat[, by])
 
   # Group and total continuous stats
-  df <- num.dat[, num.var, drop = FALSE] %>% dplyr::rename_all(~ num.label)
+  df <- num.dat %>%
+    dplyr::rename_at(num.var, ~ num.label) %>%
+    dplyr::filter(!is.na(!!rlang::sym(by)))
   group_stats <- df %>%
-    purrr::map(base::by, INDICES = ind, FUN = sum_stats_cont) %>%
-    purrr::imap_dfr(~ data.frame(
-      Variable = .y,
-      Levels = names(.x),
-      purrr::invoke(rbind, .x),
-      stringsAsFactors = FALSE
-    ))
+    dplyr::group_by(Levels = !!rlang::sym(by)) %>%
+    dplyr::summarize_if(is.numeric, ~ list(sum_stats_cont(.)))
   total_stats <- df %>%
-    purrr::map(sum_stats_cont) %>%
-    purrr::invoke(rbind, .) %>%
-    as.data.frame() %>%
-    tibble::add_column(Levels = "Total", .before = 1) %>%
-    tibble::rownames_to_column("Variable")
-
-  # Choose parametric/non-parametric statistical test, format p-values
-  switch(match.arg(stats),
-         parametric = {
-           f <- stats::oneway.test
-           test_name <- "OneWay_Test"
-         },
-         `non-parametric` = {
-           f <- stats::kruskal.test
-           test_name <- "Kruskal_Wallis"
-         })
-  pvals <- purrr::map_dbl(df, ~ f(. ~ ind)$p.value)
+    dplyr::group_by(Levels = "Total") %>%
+    dplyr::summarize_if(is.numeric, ~ list(sum_stats_cont(.)))
 
   # Combine group/total stats and reorder Variable by num.label
   # Place total stats per variable after group stats
   raw <- rbind(group_stats, total_stats) %>%
-    dplyr::mutate(
-      Variable = factor(.data$Variable, labels = num.label),
-      Levels = factor(.data$Levels, levels = c(levels(ind), "Total"))
+    tidyr::pivot_longer(
+      -"Levels",
+      names_to = "Variable",
+      names_ptypes = list(Variable = factor(levels = num.label)),
+      values_to = "stats"
     ) %>%
-    dplyr::arrange(.data$Variable)
+    tidyr::unnest(stats) %>%
+    dplyr::arrange(.data$Variable) %>%
+    dplyr::select(.data$Variable, dplyr::everything())
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
@@ -70,36 +55,44 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
 
   # Formatted table with selected dispersion variable
   formatted <- raw %>%
-    dplyr::mutate_if(is.numeric, round, digits = digits) %>%
+    dplyr::mutate_if(is.double, round, digits = digits) %>%
     dplyr::mutate(
       !!disp_name := paste0(.data$Mean, " (", .data[[disp_var]], ")"),
       `Median (IQR)` = paste0(.data$Median, " (", .data$IQR_25, " - ", .data$IQR_75, ")")
     ) %>%
-    dplyr::select(-c("Mean", "SD", "SEM", "Median", "IQR_25", "IQR_75"))
+    dplyr::select_if(~ !is.double(.))
   if ("Missing" %in% names(formatted)) {
     formatted <- formatted %>%
       dplyr::select(-"Missing", "Missing") %>%
       dplyr::mutate_at("Missing", as.character)
   }
-  # Pivot table, bold variable names, add p-values and row header
-  row_header <- c(rep("", level_num + 3), test_name)
+
+  # Choose parametric/non-parametric statistical test, format p-values
+  f <- switch(
+    match.arg(stats),
+    parametric = stats::oneway.test,
+    `non-parametric` = stats::kruskal.test
+  )
+  pvals <- df %>%
+    dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
+    purrr::map_chr(round_pvalue, p.digits = p.digits)
+
+  # Pivot table and add p-values
   formatted <- formatted %>%
     tidyr::gather(key = "Stats", , -1:-2) %>%
     tidyr::spread("Levels", "value") %>%
     dplyr::mutate(
       PValue = pvals[match(.data$Variable, names(pvals))],
       first = !duplicated(.data$Variable),
-      Variable = ifelse(.data$first, paste0("**", .data$Variable, "**"), ""),
-      PValue = ifelse(.data$first, round_pvalue(.data$PValue, p.digits), "")
+      Variable = ifelse(.data$first, as.character(.data$Variable), ""),
+      PValue = ifelse(.data$first, .data$PValue, "")
     ) %>%
     dplyr::select(-"first") %>%
-    dplyr::rename(!!"Levels" := .data$Stats) %>%
-    rbind(row_header, .)
+    dplyr::rename(!!"Levels" := .data$Stats)
 
   # Indicate missing inputs if applicable
-  total_count <- sum(table(ind))
-  if (length(ind) > total_count) {
-    n_missing <- length(ind) - total_count
+  n_missing <- nrow(num.dat) - sum(table(df[, by]))
+  if (n_missing > 0) {
     message(n_missing, " missing in 'by' argument ", sQuote(by), ".")
   }
   formatted
@@ -107,7 +100,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
 
 # Main function used to calculate Mean, SD, SEM, Median, IQR and Missing
 sum_stats_cont <- function(x) {
-  c(
+  data.frame(
     Mean = mean(x, na.rm = TRUE),
     SD = stats::sd(x, na.rm = TRUE),
     SEM = stats::sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x))),

@@ -4,10 +4,23 @@
 \alias{describeBy}
 \title{Descriptive statistics}
 \usage{
-describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
-  ShowTotal = TRUE, Missing = TRUE, digits = 0, p.digits = 3,
-  dispersion = c("sd", "se"), stats = c("parametric",
-  "non-parametric"), per = "col", simulate.p.value = FALSE, B = 2000)
+describeBy(
+  data,
+  var.names,
+  var.labels = var.names,
+  by1,
+  by2 = NULL,
+  total = c("top", "bottom", "none"),
+  Missing = TRUE,
+  digits = 0,
+  p.digits = 3,
+  dispersion = c("sd", "se"),
+  stats = c("parametric", "non-parametric"),
+  per = "col",
+  simulate.p.value = FALSE,
+  B = 2000,
+  bold_var = TRUE
+)
 }
 \arguments{
 \item{data}{data.frame to produce descriptive statistics}
@@ -20,8 +33,8 @@ describeBy(data, var.names, var.labels = var.names, by1, by2 = NULL,
 
 \item{by2}{optional second factor to split other variables by}
 
-\item{ShowTotal}{logical; if \code{TRUE}, it shows the total number of each level
-w/ \code{by1}.}
+\item{total}{add a row showing the total counts of each \code{by1} level at the
+\code{top} or \code{bottom} of the table. Setting \code{none} hides the total row.}
 
 \item{Missing}{logical; if \code{TRUE}, shows missing value counts, if they exist}
 
@@ -32,7 +45,8 @@ w/ \code{by1}.}
 \item{dispersion}{measure of variability, either "sd" (default) or "se".}
 
 \item{stats}{either "parametric" (default) or "non-parametric" univariable
-tests are performed}
+tests are performed for continuous variables. We use the parametric one-way
+test or the non-parametric Kruskal-Wallis test.}
 
 \item{per}{print column ("col") or row ("row") percentages}
 
@@ -40,6 +54,10 @@ tests are performed}
 variables.}
 
 \item{B}{passed to \code{chisq.test}. Only relevant for categorical variables.}
+
+\item{bold_var}{logical; if \code{TRUE}, the \code{Variable} names are wrapped in
+double asterisks. If the table is parsed by pandoc the variable names are
+in bold.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical

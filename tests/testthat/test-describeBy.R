@@ -23,7 +23,7 @@ test_that("multiple inputs work", {
   res <- suppressWarnings(
     describeBy(mtcars, var.names = c("vs", "hp"), by1 = "cyl")
   )
-  expect_equal(dim(res), c(6, 7))
+  expect_equal(dim(res), c(5, 7))
 })
 
 test_that("either row or column percentages can be displayed", {
@@ -102,11 +102,11 @@ test_that("dispersion can be only se or sd", {
 })
 
 test_that("totals can be suppressed", {
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric", ShowTotal = FALSE)
-  expect_equal(dim(res), c(3, 7))
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", ShowTotal = FALSE)
-  expect_equal(dim(res), c(3, 7))
-  expect_error(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "bayesian", ShowTotal = FALSE))
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric", total = "none")
+  expect_equal(dim(res), c(2, 7))
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", total = "none")
+  expect_equal(dim(res), c(2, 7))
+  expect_error(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "bayesian", total = "none"))
 })
 
 test_that("missingness is reported in splitting variable", {
