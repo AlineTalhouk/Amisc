@@ -13,6 +13,8 @@
 #' @param total add a row showing the total counts of each `by1` level at the
 #'   `top` or `bottom` of the table. Setting `none` hides the total row.
 #' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
+#' @param test logical; if `TRUE`, univariable tests are performed and a
+#'   `PValue` column is added to the end of the table.
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
 #' @param dispersion measure of variability, either "sd" (default) or "se".
@@ -37,6 +39,7 @@
 #' Missing = TRUE, dispersion = "sd", stats = "parametric")
 describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        total = c("top", "bottom", "none"), Missing = TRUE,
+                       test = TRUE,
                        digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
@@ -59,14 +62,14 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     num.var <- names(types)[num.ind]
     num.label <- var.labels[num.ind]
     num.dat <- cbind(var.dat[, num.var, drop = FALSE], facets)
-    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
+    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
   }
   if (length(fac.ind) > 0) {
     # Categorical: character and factor types
     fac.var <- names(types)[fac.ind]
     fac.label <- var.labels[fac.ind]
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
-    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
+    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
   # Combine summary statistics
