@@ -12,6 +12,7 @@ describeBy(
   by2 = NULL,
   total = c("top", "bottom", "none"),
   Missing = TRUE,
+  test = TRUE,
   digits = 0,
   p.digits = 3,
   dispersion = c("sd", "se"),
@@ -37,6 +38,9 @@ describeBy(
 \code{top} or \code{bottom} of the table. Setting \code{none} hides the total row.}
 
 \item{Missing}{logical; if \code{TRUE}, shows missing value counts, if they exist}
+
+\item{test}{logical; if \code{TRUE}, univariable tests are performed and a
+\code{PValue} column is added to the end of the table.}
 
 \item{digits}{number of digits to round descriptive statistics}
 

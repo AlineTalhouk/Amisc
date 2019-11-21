@@ -5,7 +5,7 @@
 #' @param by factor variable passed as `by1` from `describeBy`
 #' @return a formatted summary of categorical variables
 #' @noRd
-uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing,
+uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
                          digits = 0, p.digits = 3, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor and return number of levels
@@ -14,7 +14,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing,
 
   # Obtain Summary Data
   stats_args <- tibble::lst(ind, level_num, digits, per, p.digits, Missing,
-                            simulate.p.value, B)
+                            test, simulate.p.value, B)
   formatted <- fac.dat %>%
     dplyr::transmute_at(fac.var, factor) %>%
     purrr::splice(fac.var, fac.label) %>%
@@ -26,7 +26,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing,
 
 # Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
 sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
-                          p.digits, Missing, simulate.p.value, B) {
+                          p.digits, Missing, test, simulate.p.value, B) {
   x <- droplevels(x) # drop unused levels from a factor
   ind <- droplevels(ind)
   count <- table(x, ind, dnn = list(var, by))
@@ -52,14 +52,19 @@ sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
     tots <- rbind(tots, Missing = na.r)
   }
   # re-arrange the matrix so that it will be able to rbind with continuous part
-  pval <- stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value
   tots <- tots %>%
     as.data.frame(stringsAsFactors = FALSE) %>%
     dplyr::mutate(
       Variable = c(var.lab, rep("", nrow(.) - 1)),
-      Levels = rownames(.),
-      PValue = c(round_pvalue(pval, p.digits), rep("", nrow(.) - 1))
+      Levels = rownames(.)
     ) %>%
-    dplyr::select(c("Variable", "Levels", levels(ind), "Total", "PValue"))
+    dplyr::select(c("Variable", "Levels", levels(ind), "Total"))
+  # Chi-squared test
+  if (test) {
+    pval <-
+      stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value
+    tots <- tots %>%
+      dplyr::mutate(PValue = c(round_pvalue(pval, p.digits), rep("", nrow(.) - 1)))
+  }
   tots
 }

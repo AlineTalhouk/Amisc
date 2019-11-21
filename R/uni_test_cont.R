@@ -6,7 +6,7 @@
 #' @return raw and formatted summaries of numerical variables
 #' @importFrom rlang .data :=
 #' @noRd
-uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
+uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
                           digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor and return number of levels
@@ -67,26 +67,31 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing,
       dplyr::mutate_at("Missing", as.character)
   }
 
-  # Choose parametric/non-parametric statistical test, format p-values
-  f <- switch(
-    match.arg(stats),
-    parametric = stats::oneway.test,
-    `non-parametric` = stats::kruskal.test
-  )
-  pvals <- df %>%
-    dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
-    purrr::map_chr(round_pvalue, p.digits = p.digits)
-
-  # Pivot table and add p-values
+  # Pivot table
   formatted <- formatted %>%
     tidyr::gather(key = "Stats", , -1:-2) %>%
     tidyr::spread("Levels", "value") %>%
     dplyr::mutate(
-      PValue = pvals[match(.data$Variable, names(pvals))],
       first = !duplicated(.data$Variable),
-      Variable = ifelse(.data$first, as.character(.data$Variable), ""),
-      PValue = ifelse(.data$first, .data$PValue, "")
-    ) %>%
+      Variable = ifelse(.data$first, as.character(.data$Variable), "")
+    )
+
+  # Choose parametric/non-parametric statistical test, format p-values
+  if (test) {
+    f <- switch(
+      match.arg(stats),
+      parametric = stats::oneway.test,
+      `non-parametric` = stats::kruskal.test
+    )
+    pvals <- df %>%
+      dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
+      purrr::map_chr(round_pvalue, p.digits = p.digits)
+    formatted <- formatted %>%
+      dplyr::mutate(PValue = ifelse(.data$first, pvals[match(.data$Variable, names(pvals))], ""))
+  }
+
+  # Remove "first" column and rename stats to Levels
+  formatted <- formatted %>%
     dplyr::select(-"first") %>%
     dplyr::rename(!!"Levels" := .data$Stats)
 
