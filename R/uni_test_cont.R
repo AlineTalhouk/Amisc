@@ -9,8 +9,8 @@
 uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
                           digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
-  # Verify `by` is a factor and return number of levels
-  level_num <- check_factor(num.dat[, by])
+  # Verify `by` is a factor
+  check_factor(num.dat[, by])
 
   # Group and total continuous stats
   df <- num.dat %>%

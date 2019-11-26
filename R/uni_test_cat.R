@@ -8,8 +8,8 @@
 uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
                          digits = 0, p.digits = 3, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
-  # Verify `by` is a factor and return number of levels
-  level_num <- check_factor(fac.dat[, by])
+  # Verify `by` is a factor
+  check_factor(fac.dat[, by])
 
   # Group and total categorical counts
   df <- fac.dat %>%

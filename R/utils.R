@@ -1,11 +1,9 @@
 globalVariables(".")
 
-#' Check the splitting variable is a factor, and return number of levels
+#' Check the splitting variable is a factor
 #' @noRd
 check_factor <- function(x) {
-  if (inherits(x, "factor")) {
-    nlevels(x)
-  } else {
+  if (!inherits(x, "factor")) {
     stop("Splitting variable `by` does not inherit from class factor")
   }
 }
