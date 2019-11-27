@@ -3,8 +3,7 @@
 #' @param num.var numerical variables
 #' @param num.label numerical variable descriptions
 #' @param by factor variable passed as `by1` from `describeBy`
-#' @return raw and formatted summaries of numerical variables
-#' @importFrom rlang .data :=
+#' @return a formatted summary of continuous variables
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
                           digits = 0, p.digits = 3, dispersion = c("sd", "se"),
