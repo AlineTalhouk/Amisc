@@ -101,16 +101,26 @@ test_that("dispersion can be only se or sd", {
   expect_error(describeBy(mtcars, var.names = "qsec", by1 = "cyl", dispersion = "sc"))
 })
 
-test_that("totals can be suppressed", {
+test_that("totals can be at the top, bottom, or suppressed", {
   res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric", total = "none")
   expect_equal(dim(res), c(2, 7))
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", total = "none")
-  expect_equal(dim(res), c(2, 7))
-  expect_error(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "bayesian", total = "none"))
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", total = "top")
+  expect_equal(dim(res), c(3, 7))
+  expect_equal(grep("Total", res[["Variable"]]), 1)
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric", total = "bottom")
+  expect_equal(dim(res), c(3, 7))
+  expect_equal(grep("Total", res[["Variable"]]), 3)
 })
 
 test_that("missingness is reported in splitting variable", {
   mtcars$cyl[1] <- NA
   expect_message(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "parametric"), "missing")
   expect_message(describeBy(mtcars, var.names = "hp", by1 = "cyl", stats = "non-parametric"), "missing")
+})
+
+test_that("variable bolding can be toggled", {
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", bold_var = TRUE)
+  expect_length(grep("\\*", res[["Variable"]]), 2)
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", bold_var = FALSE)
+  expect_length(grep("\\*", res[["Variable"]]), 0)
 })
