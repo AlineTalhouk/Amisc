@@ -14,6 +14,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
   # Group and total categorical counts
   df <- fac.dat %>%
     dplyr::rename_at(fac.var, ~ fac.label) %>%
+    dplyr::filter(!is.na(!!rlang::sym(by))) %>%
     tidyr::pivot_longer(
       names_to = "Variable",
       names_ptypes = list(Variable = factor()),
