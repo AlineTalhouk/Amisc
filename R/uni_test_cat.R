@@ -8,63 +8,80 @@
 uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
                          digits = 0, p.digits = 3, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
-  # Verify `by` is a factor and return number of levels
-  ind <- fac.dat[, by]
-  level_num <- check_factor(ind)
+  # Verify `by` is a factor
+  check_factor(fac.dat[, by])
 
-  # Obtain Summary Data
-  stats_args <- tibble::lst(ind, level_num, digits, per, p.digits, Missing,
-                            test, simulate.p.value, B)
-  formatted <- fac.dat %>%
-    dplyr::transmute_at(fac.var, factor) %>%
-    purrr::splice(fac.var, fac.label) %>%
-    purrr::pmap_dfr(~ purrr::invoke(
-      sum_stats_cat, x = ..1, var = ..2, var.lab = ..3, stats_args
-    ))
-  tibble::as_tibble(formatted)
-}
+  # Group and total categorical counts
+  df <- fac.dat %>%
+    dplyr::rename_at(fac.var, ~ fac.label) %>%
+    tidyr::pivot_longer(
+      names_to = "Variable",
+      names_ptypes = list(Variable = factor()),
+      values_to = "Value",
+      -!!rlang::sym(by)
+    )
+  group_counts <- df %>%
+    dplyr::group_by(Levels = as.character(!!rlang::sym(by))) %>%
+    dplyr::count(.data$Variable, .data$Value)
+  total_counts <- df %>%
+    dplyr::group_by(Levels = "Total") %>%
+    dplyr::count(.data$Variable, .data$Value)
+  all_counts <- rbind(group_counts, total_counts) %>%
+    dplyr::group_by(.data$Variable) %>%
+    tidyr::complete(.data$Levels, .data$Value, fill = list(n = 0))
 
-# Main functions used to obtain the marginal totals, which are the total counts of the cases over the categories of interest
-sum_stats_cat <- function(x, var, var.lab, ind, level_num, digits, per,
-                          p.digits, Missing, test, simulate.p.value, B) {
-  x <- droplevels(x) # drop unused levels from a factor
-  ind <- droplevels(ind)
-  count <- table(x, ind, dnn = list(var, by))
+  # Missing cases will only be shown if isTRUE(Missing) and there are indeed NA
+  if (!(anyNA(all_counts[["Value"]]) && Missing)) {
+    all_counts <- dplyr::filter(all_counts, !is.na(.data$Value))
+  }
+
+  # Percent by column/row
   if (per == "col") {
-    per.val <- count %>%
-      stats::addmargins(margin = 2) %>%
-      prop.table(margin = 2)
+    val_per <- all_counts %>%
+      dplyr::group_by(.data$Levels, .data$Variable) %>%
+      dplyr::mutate(prop = (.data$n / sum(.data$n[!is.na(.data$Value)])))
   } else if (per == "row") {
-    per.val <- count %>%
-      prop.table(margin = 1) %>%
-      stats::addmargins(margin = 2)
+    val_per <- all_counts %>%
+      dplyr::group_by(.data$Value, .data$Variable) %>%
+      dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Levels != "Total"])))
   }
-  tots <- per.val %>%
-    as.numeric() %>%
-    round_percent(digits) %>%
-    paste(stats::addmargins(count, 2), .) %>%
-    matrix(nrow = nrow(count),
-           dimnames = list(levels(x), c(levels(ind), "Total")))
 
-  # Missing cases will only be shown if Missing == TRUE and there are indeed missing ones
-  na.r <- stats::addmargins(table(x, ind, useNA = "always"))[nlevels(x) + 1, -level_num - 1]
-  if (sum(na.r) != 0 && Missing) {
-    tots <- rbind(tots, Missing = na.r)
-  }
-  # re-arrange the matrix so that it will be able to rbind with continuous part
-  tots <- tots %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
-    dplyr::mutate(
-      Variable = c(var.lab, rep("", nrow(.) - 1)),
-      Levels = rownames(.)
-    ) %>%
-    dplyr::select(c("Variable", "Levels", levels(ind), "Total"))
+  # Pivot table and merged counts with proportions
+  formatted <- val_per %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(stat = ifelse(
+      is.na(.data$Value),
+      .data$n,
+      paste(.data$n, round_percent(.data$prop, digits), sep = " ")
+    )) %>%
+    dplyr::select(-c(.data$n, .data$prop)) %>%
+    dplyr::arrange(.data$Variable) %>%
+    tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
+
   # Chi-squared test
   if (test) {
-    pval <-
-      stats::chisq.test(count, simulate.p.value = simulate.p.value, B = B)$p.value
-    tots <- tots %>%
-      dplyr::mutate(PValue = c(round_pvalue(pval, p.digits), rep("", nrow(.) - 1)))
+    pval_df <- df %>%
+      dplyr::group_by(.data$Variable) %>%
+      dplyr::summarize(
+        PValue = stats::chisq.test(
+          x = !!rlang::sym(by),
+          y = .data$Value,
+          simulate.p.value = simulate.p.value,
+          B = B
+        ) %>%
+          purrr::pluck("p.value") %>%
+          round_pvalue(p.digits)
+      )
+    formatted <- dplyr::inner_join(formatted, pval_df, by = "Variable")
   }
-  tots
+
+  # Remove duplicates, rename NA to "Missing", rename Value to Levels
+  formatted <- formatted %>%
+    dplyr::mutate_at(dplyr::vars(-c("Value", unique(all_counts[["Levels"]]))),
+                     ~ ifelse(!duplicated(.), as.character(.), "")) %>%
+    dplyr::mutate(Value = ifelse(is.na(.data$Value),
+                                 "Missing",
+                                 as.character(.data$Value))) %>%
+    dplyr::rename(!!"Levels" := .data$Value)
+  formatted
 }
