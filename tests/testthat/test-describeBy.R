@@ -24,6 +24,10 @@ test_that("multiple inputs work", {
     describeBy(mtcars, var.names = c("vs", "hp"), by1 = "cyl")
   )
   expect_equal(dim(res), c(5, 7))
+  res <- suppressWarnings(
+    describeBy(mtcars, var.names = c("vs", "gear"), by1 = "cyl")
+  )
+  expect_equal(dim(res), c(6, 7))
 })
 
 test_that("either row or column percentages can be displayed", {
