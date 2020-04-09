@@ -23,13 +23,15 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     )
   group_counts <- df %>%
     dplyr::group_by(Levels = as.character(!!rlang::sym(by))) %>%
-    dplyr::count(.data$Variable, .data$Value)
+    dplyr::count(.data$Variable, .data$Value) %>%
+    dplyr::ungroup() %>%
+    tidyr::complete(.data$Levels,
+                    tidyr::nesting(.data$Value, .data$Variable),
+                    fill = list(n = 0))
   total_counts <- df %>%
-    dplyr::group_by(Levels = "Total") %>%
-    dplyr::count(.data$Variable, .data$Value)
-  all_counts <- rbind(group_counts, total_counts) %>%
-    dplyr::group_by(.data$Variable) %>%
-    tidyr::complete(.data$Levels, .data$Value, fill = list(n = 0))
+    dplyr::count(Levels = "Total", .data$Variable, .data$Value)
+  all_counts <- dplyr::bind_rows(group_counts, total_counts) %>%
+    dplyr::select("Levels", "Variable", "Value", "n")
 
   # Missing cases will only be shown if isTRUE(Missing) and there are indeed NA
   if (!(anyNA(all_counts[["Value"]]) && Missing)) {
