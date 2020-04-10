@@ -22,9 +22,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       -!!rlang::sym(by)
     )
   group_counts <- df %>%
-    dplyr::group_by(Levels = as.character(!!rlang::sym(by))) %>%
-    dplyr::count(.data$Variable, .data$Value) %>%
-    dplyr::ungroup() %>%
+    dplyr::count(Levels = !!rlang::sym(by), .data$Variable, .data$Value) %>%
     tidyr::complete(.data$Levels,
                     tidyr::nesting(.data$Value, .data$Variable),
                     fill = list(n = 0))
