@@ -68,7 +68,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       dplyr::group_by(.data$Variable) %>%
       dplyr::summarize(
         PValue = ifelse(
-          dplyr::n_distinct(.data$Value) == 1,
+          dplyr::n_distinct(.data$Value) == 2,
           NA_character_,
           stats::chisq.test(
             x = !!rlang::sym(by),
