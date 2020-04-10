@@ -66,13 +66,18 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     pval_df <- df %>%
       dplyr::group_by(.data$Variable) %>%
       dplyr::summarize(
-        PValue = stats::chisq.test(
-          x = table(!!rlang::sym(by), .data$Value),
-          simulate.p.value = simulate.p.value,
-          B = B
-        ) %>%
-          purrr::pluck("p.value") %>%
-          round_pvalue(p.digits)
+        PValue = ifelse(
+          dplyr::n_distinct(.data$Value) == 1,
+          NA_character_,
+          stats::chisq.test(
+            x = !!rlang::sym(by),
+            y = .data$Value,
+            simulate.p.value = simulate.p.value,
+            B = B
+          ) %>%
+            purrr::pluck("p.value") %>%
+            round_pvalue(p.digits)
+        )
       )
     formatted <- dplyr::inner_join(formatted, pval_df, by = "Variable")
   }
