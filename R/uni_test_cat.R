@@ -67,8 +67,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       dplyr::group_by(.data$Variable) %>%
       dplyr::summarize(
         PValue = stats::chisq.test(
-          x = !!rlang::sym(by),
-          y = .data$Value,
+          x = table(!!rlang::sym(by), .data$Value),
           simulate.p.value = simulate.p.value,
           B = B
         ) %>%
