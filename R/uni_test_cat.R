@@ -22,26 +22,28 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       -!!rlang::sym(by)
     )
   group_counts <- df %>%
+    dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
     dplyr::count(Levels = !!rlang::sym(by), .data$Variable, .data$Value) %>%
     tidyr::complete(.data$Levels,
                     tidyr::nesting(.data$Value, .data$Variable),
                     fill = list(n = 0)) %>%
     dplyr::mutate(Levels = as.character(Levels))
   total_counts <- df %>%
+    dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
     dplyr::count(Levels = "Total", .data$Variable, .data$Value)
   all_counts <- dplyr::bind_rows(group_counts, total_counts) %>%
     dplyr::select("Levels", "Variable", "Value", "n")
 
-  # Missing cases will only be shown if isTRUE(Missing) and there are indeed NA
-  if (!(anyNA(all_counts[["Value"]]) && Missing)) {
-    all_counts <- dplyr::filter(all_counts, !is.na(.data$Value))
+  # Missing cases will only be shown they exist and if isTRUE(Missing)
+  if (!("Missing" %in% levels(all_counts[["Value"]]) && Missing)) {
+    all_counts <- dplyr::filter(all_counts, .data$Value != "Missing")
   }
 
   # Percent by column/row
   if (per == "col") {
     val_per <- all_counts %>%
       dplyr::group_by(.data$Levels, .data$Variable) %>%
-      dplyr::mutate(prop = (.data$n / sum(.data$n[!is.na(.data$Value)])))
+      dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Value != "Missing"])))
   } else if (per == "row") {
     val_per <- all_counts %>%
       dplyr::group_by(.data$Value, .data$Variable) %>%
@@ -52,7 +54,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
   formatted <- val_per %>%
     dplyr::ungroup() %>%
     dplyr::mutate(stat = ifelse(
-      is.na(.data$Value),
+      .data$Value == "Missing",
       .data$n,
       paste(.data$n, round_percent(.data$prop, digits), sep = " ")
     )) %>%
@@ -81,13 +83,11 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     formatted <- dplyr::inner_join(formatted, pval_df, by = "Variable")
   }
 
-  # Remove duplicates, rename NA to "Missing", rename Value to Levels
+  # Remove duplicates, set Value to character, rename Value to Levels
   formatted <- formatted %>%
     dplyr::mutate_at(dplyr::vars(-c("Value", unique(all_counts[["Levels"]]))),
                      ~ ifelse(!duplicated(.), as.character(.), "")) %>%
-    dplyr::mutate(Value = ifelse(is.na(.data$Value),
-                                 "Missing",
-                                 as.character(.data$Value))) %>%
+    dplyr::mutate(Value = as.character(.data$Value)) %>%
     dplyr::rename(!!"Levels" := .data$Value)
   formatted
 }
