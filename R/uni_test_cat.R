@@ -27,7 +27,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     tidyr::complete(.data$Levels,
                     tidyr::nesting(.data$Value, .data$Variable),
                     fill = list(n = 0)) %>%
-    dplyr::mutate(Levels = as.character(Levels))
+    dplyr::mutate(Levels = as.character(.data$Levels))
   total_counts <- df %>%
     dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
     dplyr::count(Levels = "Total", .data$Variable, .data$Value)
