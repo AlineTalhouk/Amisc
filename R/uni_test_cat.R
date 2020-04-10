@@ -85,8 +85,10 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
 
   # Remove duplicates, set Value to character, rename Value to Levels
   formatted <- formatted %>%
-    dplyr::mutate_at(dplyr::vars(-c("Value", unique(all_counts[["Levels"]]))),
+    dplyr::mutate_at("Variable",
                      ~ ifelse(!duplicated(.), as.character(.), "")) %>%
+    dplyr::mutate_at(dplyr::vars(dplyr::matches("PValue")),
+                     ~ ifelse(.data$Variable == "", "", .data$PValue)) %>%
     dplyr::mutate(Value = as.character(.data$Value)) %>%
     dplyr::rename(!!"Levels" := .data$Value)
   formatted
