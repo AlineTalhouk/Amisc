@@ -6,11 +6,11 @@ Date: 2020-04-09
 Authors@R: 
     c(person(given = "Aline",
              family = "Talhouk",
-             role = c("aut", "cre"),
+             role = "aut",
              email = "atalhouk@bccrc.ca"),
       person(given = "Derek",
              family = "Chiu",
-             role = "aut",
+             role = c("aut", "cre"),
              email = "dchiu@bccrc.ca"),
       person(given = "Shanzhao",
              family = "Wang",
