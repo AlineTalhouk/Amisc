@@ -1,4 +1,4 @@
-# Amisc 0.2.0.9005
+# Amisc 0.3.0
 
 * Coerce character variables to factors
 * Set p-value to NA for single level factors to handle chi-squared test error
