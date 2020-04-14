@@ -11,11 +11,11 @@ Provides some commonly used utility functions used
     formatting, survival functions, and more.
 }
 \author{
-\strong{Maintainer}: Aline Talhouk \email{atalhouk@bccrc.ca}
+\strong{Maintainer}: Derek Chiu \email{dchiu@bccrc.ca}
 
 Authors:
 \itemize{
-  \item Derek Chiu \email{dchiu@bccrc.ca}
+  \item Aline Talhouk \email{atalhouk@bccrc.ca}
   \item Shanzhao Wang \email{szwang@bccrc.ca}
 }
 
