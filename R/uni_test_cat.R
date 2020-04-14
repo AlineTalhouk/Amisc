@@ -15,6 +15,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
   df <- fac.dat %>%
     dplyr::rename_at(fac.var, ~ fac.label) %>%
     dplyr::filter(!is.na(!!rlang::sym(by))) %>%
+    dplyr::mutate_all(as.factor) %>%
     tidyr::pivot_longer(
       names_to = "Variable",
       names_ptypes = list(Variable = factor()),
