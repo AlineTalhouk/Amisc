@@ -36,7 +36,7 @@ variable types:
 
 ``` r
 # change column types as all columns in mtcars are originally numeric
-mtcars$cyl <- as.factor(mtcars$cyl) 
+mtcars$cyl <- as.factor(mtcars$cyl)
 mtcars$vs <- as.character(mtcars$vs)
 
 # categorical
@@ -45,18 +45,18 @@ Amisc::describeBy(data = mtcars, var.names = "vs", by1 = "cyl",
 #> Warning in stats::chisq.test(x = cyl, y = .data$Value, simulate.p.value =
 #> simulate.p.value, : Chi-squared approximation may be incorrect
 #> # A tibble: 3 x 7
-#>   Variable  Levels `4`      `6`     `8`       Total     PValue
-#>   <chr>     <chr>  <chr>    <chr>   <chr>     <chr>     <chr> 
-#> 1 **Total** N (%)  11 (34%) 7 (22%) 14 (44%)  32 (100%) ""    
-#> 2 **vs**    0      1 (9%)   3 (43%) 14 (100%) 18 (56%)  <0.001
-#> 3 ""        1      10 (91%) 4 (57%) 0 (0%)    14 (44%)  ""
+#>   Variable    Levels `4`      `6`     `8`       Total     PValue  
+#>   <chr>       <chr>  <chr>    <chr>   <chr>     <chr>     <chr>   
+#> 1 "**Total**" N (%)  11 (34%) 7 (22%) 14 (44%)  32 (100%) ""      
+#> 2 "**vs**"    0      1 (9%)   3 (43%) 14 (100%) 18 (56%)  "<0.001"
+#> 3 ""          1      10 (91%) 4 (57%) 0 (0%)    14 (44%)  ""
 # numerical
 Amisc::describeBy(data = mtcars, var.names = "hp", by1 = "cyl",
                   dispersion = "sd", Missing = TRUE, stats = "parametric")
 #> # A tibble: 3 x 7
-#>   Variable  Levels      `4`         `6`          `8`          Total       PValue
-#>   <chr>     <chr>       <chr>       <chr>        <chr>        <chr>       <chr> 
-#> 1 **Total** N (%)       11 (34%)    7 (22%)      14 (44%)     32 (100%)   ""    
-#> 2 **hp**    Mean (sd)   83 (21)     122 (24)     209 (51)     147 (69)    <0.001
-#> 3 ""        Median (IQ… 91 (66 - 9… 110 (110 - … 192 (176 - … 123 (96 - … ""
+#>   Variable    Levels      `4`        `6`         `8`         Total       PValue 
+#>   <chr>       <chr>       <chr>      <chr>       <chr>       <chr>       <chr>  
+#> 1 "**Total**" N (%)       11 (34%)   7 (22%)     14 (44%)    32 (100%)   ""     
+#> 2 "**hp**"    Mean (sd)   83 (21)    122 (24)    209 (51)    147 (69)    "<0.00~
+#> 3 ""          Median (IQ~ 91 (66 - ~ 110 (110 -~ 192 (176 -~ 123 (96 - ~ ""
 ```

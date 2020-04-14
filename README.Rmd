@@ -36,7 +36,7 @@ This is a basic example which shows you how to summarize different variable type
 
 ```{r example}
 # change column types as all columns in mtcars are originally numeric
-mtcars$cyl <- as.factor(mtcars$cyl) 
+mtcars$cyl <- as.factor(mtcars$cyl)
 mtcars$vs <- as.character(mtcars$vs)
 
 # categorical
