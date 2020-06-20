@@ -20,6 +20,8 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       names_to = "Variable",
       names_ptypes = list(Variable = factor()),
       values_to = "Value",
+      values_ptypes = list(Value = character()),
+
       -!!rlang::sym(by)
     )
   group_counts <- df %>%
@@ -69,7 +71,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       dplyr::group_by(.data$Variable) %>%
       dplyr::summarize(
         PValue = ifelse(
-          nlevels(droplevels(.data$Value)) == 1,
+          nlevels(factor(.data$Value)) == 1,
           NA_character_,
           stats::chisq.test(
             x = !!rlang::sym(by),
