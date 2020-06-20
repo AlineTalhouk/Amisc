@@ -28,6 +28,8 @@
 #' @param bold_var logical; if `TRUE`, the `Variable` names are wrapped in
 #'   double asterisks. If the table is parsed by pandoc the variable names are
 #'   in bold.
+#' @param fill_var logical; if `TRUE`, the `Variable` name is repeated for every
+#'   row it pertains to. If `FALSE`, the name is only shown when it changes.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
@@ -43,7 +45,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        digits = 0, p.digits = 3, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
-                       bold_var = TRUE) {
+                       bold_var = TRUE, fill_var = FALSE) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -96,15 +98,21 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     }
   }
 
+  # Fill the variable names
+  if (fill_var) {
+    final <- final %>%
+      dplyr::mutate(Variable = dplyr::na_if(.data$Variable, "")) %>%
+      tidyr::fill(.data$Variable)
+  }
+
   # Bold the variable names
   if (bold_var) {
-    dplyr::mutate(final,
-                  Variable = ifelse(
-                    .data$Variable == "",
-                    .data$Variable,
-                    paste0("**", .data$Variable, "**")
-                  ))
-  } else {
-    final
+    final <- final %>%
+      dplyr::mutate(Variable = ifelse(
+        .data$Variable == "",
+        .data$Variable,
+        paste0("**", .data$Variable, "**")
+      ))
   }
+  final
 }

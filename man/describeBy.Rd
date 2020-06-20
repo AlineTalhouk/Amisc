@@ -20,7 +20,8 @@ describeBy(
   per = "col",
   simulate.p.value = FALSE,
   B = 2000,
-  bold_var = TRUE
+  bold_var = TRUE,
+  fill_var = FALSE
 )
 }
 \arguments{
@@ -62,6 +63,9 @@ variables.}
 \item{bold_var}{logical; if \code{TRUE}, the \code{Variable} names are wrapped in
 double asterisks. If the table is parsed by pandoc the variable names are
 in bold.}
+
+\item{fill_var}{logical; if \code{TRUE}, the \code{Variable} name is repeated for every
+row it pertains to. If \code{FALSE}, the name is only shown when it changes.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical
