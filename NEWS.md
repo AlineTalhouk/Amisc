@@ -1,3 +1,13 @@
+# Amisc 0.3.2
+
+* Fix bug when multiple categorical variables share the same levels and the ordering isn't retained
+* Add parameter to fill in variable name for every row it pertains to
+
+# Amisc 0.3.1
+
+* Fix bug related to `tidyr::nesting()` in tidyverse/tidyr#971
+* Updated author roles
+
 # Amisc 0.3.0
 
 * Coerce character variables to factors
