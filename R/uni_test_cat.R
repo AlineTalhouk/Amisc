@@ -11,17 +11,19 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
   # Verify `by` is a factor
   check_factor(fac.dat[, by])
 
-  # Group and total categorical counts
-  df <- fac.dat %>%
+  # Rename labels, remove missing from by variable, make all factors
+  fac.dat <- fac.dat %>%
     dplyr::rename_at(fac.var, ~ fac.label) %>%
     dplyr::filter(!is.na(!!rlang::sym(by))) %>%
-    dplyr::mutate_all(as.factor) %>%
+    dplyr::mutate_all(as.factor)
+
+  # Group and total categorical counts
+  df <- fac.dat %>%
     tidyr::pivot_longer(
       names_to = "Variable",
       names_ptypes = list(Variable = factor()),
       values_to = "Value",
       values_ptypes = list(Value = character()),
-
       -!!rlang::sym(by)
     )
   group_counts <- df %>%
@@ -62,7 +64,12 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       paste(.data$n, round_percent(.data$prop, digits), sep = " ")
     )) %>%
     dplyr::select(-c(.data$n, .data$prop)) %>%
-    dplyr::arrange(.data$Variable) %>%
+    dplyr::group_split(.data$Variable) %>%
+    purrr::map2_dfr(
+      lapply(dplyr::select(fac.dat, -!!rlang::sym(by)), levels),
+      ~ dplyr::mutate(.x, Value = factor(Value, levels = .y)) %>%
+        dplyr::arrange(Value)
+    ) %>%
     tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
 
   # Chi-squared test
