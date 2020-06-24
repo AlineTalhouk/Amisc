@@ -30,14 +30,13 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
     dplyr::count(Levels = !!rlang::sym(by), .data$Variable, .data$Value) %>%
     tidyr::complete(.data$Levels,
-                    tidyr::nesting(!!rlang::sym("Value"), !!rlang::sym("Variable")),
+                    tidyr::nesting(!!rlang::sym("Variable"), !!rlang::sym("Value")),
                     fill = list(n = 0)) %>%
     dplyr::mutate(Levels = as.character(.data$Levels))
   total_counts <- df %>%
     dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
     dplyr::count(Levels = "Total", .data$Variable, .data$Value)
-  all_counts <- dplyr::bind_rows(group_counts, total_counts) %>%
-    dplyr::select("Levels", "Variable", "Value", "n")
+  all_counts <- dplyr::bind_rows(group_counts, total_counts)
 
   # Missing cases will only be shown they exist and if isTRUE(Missing)
   if (!("Missing" %in% levels(all_counts[["Value"]]) && Missing)) {
