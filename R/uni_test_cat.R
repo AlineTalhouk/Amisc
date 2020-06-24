@@ -20,8 +20,12 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
   # Formatted table with counts and percentages
   formatted <- purrr::map_dfr(rlang::syms(fac.label), ~ {
     # Group and total categorical counts
-    grp <- dplyr::count(fac.dat, Levels = !!rlang::sym(by), !!.x, .drop = FALSE)
-    tot <- dplyr::count(fac.dat, Levels = "Total", !!.x, .drop = FALSE)
+    grp <- fac.dat %>%
+      dplyr::mutate(!!.x := forcats::fct_explicit_na(!!.x, "Missing")) %>%
+      dplyr::count(Levels = !!rlang::sym(by), !!.x, .drop = FALSE)
+    tot <- fac.dat %>%
+      dplyr::mutate(!!.x := forcats::fct_explicit_na(!!.x, "Missing")) %>%
+      dplyr::count(Levels = "Total", !!.x, .drop = FALSE)
     all <- dplyr::bind_rows(grp, tot)
     # Missing cases will only be shown they exist and if isTRUE(Missing)
     if (!("Missing" %in% levels(all[[rlang::as_name(.x)]]) && Missing)) {
