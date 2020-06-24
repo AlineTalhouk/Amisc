@@ -1,3 +1,7 @@
+# Amisc 0.3.3
+
+* Previous fix didn't preserve variable-specific factor order, refactor code using list
+
 # Amisc 0.3.2
 
 * Fix bug when multiple categorical variables share the same levels and the ordering isn't retained
