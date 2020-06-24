@@ -17,63 +17,48 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     dplyr::filter(!is.na(!!rlang::sym(by))) %>%
     dplyr::mutate_all(as.factor)
 
-  # Group and total categorical counts
-  df <- fac.dat %>%
-    tidyr::pivot_longer(
-      names_to = "Variable",
-      names_ptypes = list(Variable = factor()),
-      values_to = "Value",
-      values_ptypes = list(Value = character()),
-      -!!rlang::sym(by)
-    )
-  group_counts <- df %>%
-    dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
-    dplyr::count(Levels = !!rlang::sym(by), .data$Variable, .data$Value) %>%
-    tidyr::complete(.data$Levels,
-                    tidyr::nesting(!!rlang::sym("Variable"), !!rlang::sym("Value")),
-                    fill = list(n = 0)) %>%
-    dplyr::mutate(Levels = as.character(.data$Levels))
-  total_counts <- df %>%
-    dplyr::mutate(Value = forcats::fct_explicit_na(.data$Value, "Missing")) %>%
-    dplyr::count(Levels = "Total", .data$Variable, .data$Value)
-  all_counts <- dplyr::bind_rows(group_counts, total_counts)
-
-  # Missing cases will only be shown they exist and if isTRUE(Missing)
-  if (!("Missing" %in% levels(all_counts[["Value"]]) && Missing)) {
-    all_counts <- dplyr::filter(all_counts, .data$Value != "Missing")
-  }
-
-  # Percent by column/row
-  if (per == "col") {
-    val_per <- all_counts %>%
-      dplyr::group_by(.data$Levels, .data$Variable) %>%
-      dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Value != "Missing"])))
-  } else if (per == "row") {
-    val_per <- all_counts %>%
-      dplyr::group_by(.data$Value, .data$Variable) %>%
-      dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Levels != "Total"])))
-  }
-
-  # Pivot table and merged counts with proportions
-  formatted <- val_per %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(stat = ifelse(
-      .data$Value == "Missing",
-      .data$n,
-      paste(.data$n, round_percent(.data$prop, digits), sep = " ")
-    )) %>%
-    dplyr::select(-c(.data$n, .data$prop)) %>%
-    dplyr::group_split(.data$Variable) %>%
-    purrr::map2_dfr(
-      lapply(dplyr::select(fac.dat, -!!rlang::sym(by)), levels),
-      ~ dplyr::mutate(.x, Value = factor(Value, levels = .y)) %>%
-        dplyr::arrange(Value)
-    ) %>%
-    tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
+  # Formatted table with counts and percentages
+  formatted <- purrr::map_dfr(rlang::syms(fac.label), ~ {
+    # Group and total categorical counts
+    grp <- dplyr::count(fac.dat, Levels = !!rlang::sym(by), !!.x, .drop = FALSE)
+    tot <- dplyr::count(fac.dat, Levels = "Total", !!.x, .drop = FALSE)
+    all <- dplyr::bind_rows(grp, tot)
+    # Missing cases will only be shown they exist and if isTRUE(Missing)
+    if (!("Missing" %in% levels(all[[rlang::as_name(.x)]]) && Missing)) {
+      all <- dplyr::filter(all, !!.x != "Missing")
+    }
+    # Percent by column/row
+    if (per == "col") {
+      val_per <- all %>%
+        dplyr::group_by(.data$Levels) %>%
+        dplyr::mutate(prop = (.data$n / sum(.data$n[!!.x != "Missing"])))
+    } else if (per == "row") {
+      val_per <- all %>%
+        dplyr::group_by(!!.x) %>%
+        dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Levels != "Total"])))
+    }
+    # Pivot table and merged counts with proportions
+    val_per %>%
+      dplyr::ungroup() %>%
+      dplyr::transmute(Levels, !!.x, stat = ifelse(
+        !!.x == "Missing",
+        .data$n,
+        paste(.data$n, round_percent(.data$prop, digits), sep = " ")
+      )) %>%
+      tidyr::pivot_longer(!!.x, names_to = "Variable", values_to = "Value") %>%
+      tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
+  })
 
   # Chi-squared test
   if (test) {
-    pval_df <- df %>%
+    pval_df <- fac.dat %>%
+      tidyr::pivot_longer(
+        names_to = "Variable",
+        names_ptypes = list(Variable = factor()),
+        values_to = "Value",
+        values_ptypes = list(Value = character()),
+        -!!rlang::sym(by)
+      ) %>%
       dplyr::group_by(.data$Variable) %>%
       dplyr::summarize(
         PValue = ifelse(
