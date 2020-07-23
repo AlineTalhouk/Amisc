@@ -1,3 +1,7 @@
+# Amisc 0.3.4
+
+* Fix bug when `total = "none"` used early `return()` before `fill_var` and `bold_var` calls
+
 # Amisc 0.3.3
 
 * Previous fix didn't preserve variable-specific factor order, refactor code using list
