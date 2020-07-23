@@ -85,9 +85,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
 
   # Add row for total counts and percentages
   total <- match.arg(total)
-  if (total == "none") {
-    return(final)
-  } else {
+  if (total != "none") {
     counts <- c(table(facets), nrow(facets))
     percents <- round_percent(counts / nrow(facets), digits)
     tr <- c("Total", "N (%)", paste(counts, percents), "")
