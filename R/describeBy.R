@@ -68,14 +68,14 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     num.var <- names(types)[num.ind]
     num.label <- var.labels[num.ind]
     num.dat <- cbind(var.dat[, num.var, drop = FALSE], facets)
-    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, dispersion = dispersion, stats = stats)
+    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, dispersion = dispersion, stats = stats)
   }
   if (length(fac.ind) > 0) {
     # Categorical: character and factor types
     fac.var <- names(types)[fac.ind]
     fac.label <- var.labels[fac.ind]
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
-    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, per = per, simulate.p.value = simulate.p.value, B = B)
+    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
   # Combine summary statistics
