@@ -6,7 +6,8 @@
 #' @return a formatted summary of categorical variables
 #' @noRd
 uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
-                         digits = 0, p.digits = 3, per = "col",
+                         digits = 0, p.digits = 3, bold_pval = FALSE,
+                         sig.level = 0.05, per = "col",
                          simulate.p.value = FALSE, B = 2000) {
   # Verify `by` is a factor
   check_factor(fac.dat[, by])
@@ -74,9 +75,16 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
             simulate.p.value = simulate.p.value,
             B = B
           ) %>%
-            purrr::pluck("p.value") %>%
-            round_pvalue(p.digits)
+            purrr::pluck("p.value")
         )
+      )
+    pval_df <- pval_df %>%
+      dplyr::mutate(
+        !!"PValue" :=
+          round_pvalue(.data$PValue, p.digits = p.digits) %>%
+          purrr::map2_chr(.data$PValue, ~ ifelse(
+            bold_pval & .y < sig.level, paste0("**", .x, "**"), .x
+          ))
       )
     formatted <- dplyr::inner_join(formatted, pval_df, by = "Variable")
   }

@@ -6,7 +6,8 @@
 #' @return a formatted summary of continuous variables
 #' @noRd
 uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
-                          digits = 0, p.digits = 3, dispersion = c("sd", "se"),
+                          digits = 0, p.digits = 3, bold_pval = FALSE,
+                          sig.level = 0.05, dispersion = c("sd", "se"),
                           stats = c("parametric", "non-parametric")) {
   # Verify `by` is a factor
   check_factor(num.dat[, by])
@@ -83,10 +84,13 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
       `non-parametric` = stats::kruskal.test
     )
     pvals <- df %>%
-      dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value) %>%
-      purrr::map_chr(round_pvalue, p.digits = p.digits)
+      dplyr::summarize_if(is.numeric, ~ f(. ~ !!rlang::sym(by))$p.value)
+    pvals_f <- pvals %>%
+      purrr::map_chr(round_pvalue, p.digits = p.digits) %>%
+      purrr::map2_chr(pvals, ~ ifelse(bold_pval &
+                                        .y < sig.level, paste0("**", .x, "**"), .x))
     formatted <- formatted %>%
-      dplyr::mutate(PValue = ifelse(.data$first, pvals[match(.data$Variable, names(pvals))], ""))
+      dplyr::mutate(PValue = ifelse(.data$first, pvals_f[match(.data$Variable, names(pvals_f))], ""))
   }
 
   # Remove "first" column and rename stats to Levels

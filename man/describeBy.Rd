@@ -15,6 +15,8 @@ describeBy(
   test = TRUE,
   digits = 0,
   p.digits = 3,
+  bold_pval = FALSE,
+  sig.level = 0.05,
   dispersion = c("sd", "se"),
   stats = c("parametric", "non-parametric"),
   per = "col",
@@ -46,6 +48,11 @@ describeBy(
 \item{digits}{number of digits to round descriptive statistics}
 
 \item{p.digits}{number of digits to round univariable test p-value}
+
+\item{bold_pval}{logical; if \code{TRUE}, p-values are bolded if statistically
+significant at \code{sig.level}}
+
+\item{sig.level}{significance level; default 0.05}
 
 \item{dispersion}{measure of variability, either "sd" (default) or "se".}
 

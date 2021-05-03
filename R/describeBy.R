@@ -17,6 +17,9 @@
 #'   `PValue` column is added to the end of the table.
 #' @param digits number of digits to round descriptive statistics
 #' @param p.digits number of digits to round univariable test p-value
+#' @param bold_pval logical; if `TRUE`, p-values are bolded if statistically
+#'   significant at `sig.level`
+#' @param sig.level significance level; default 0.05
 #' @param dispersion measure of variability, either "sd" (default) or "se".
 #' @param stats either "parametric" (default) or "non-parametric" univariable
 #'   tests are performed for continuous variables. We use the parametric one-way
@@ -42,7 +45,8 @@
 describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        total = c("top", "bottom", "none"), Missing = TRUE,
                        test = TRUE,
-                       digits = 0, p.digits = 3, dispersion = c("sd", "se"),
+                       digits = 0, p.digits = 3, bold_pval = FALSE,
+                       sig.level = 0.05, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
                        bold_var = TRUE, fill_var = FALSE) {
