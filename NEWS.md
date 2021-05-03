@@ -1,3 +1,7 @@
+# Amisc 0.3.5
+
+* Add new feature to bold p-values that are significant at a certain level with parameters `bold_pval` and `sig.level`
+
 # Amisc 0.3.4
 
 * Fix bug when `total = "none"` used early `return()` before `fill_var` and `bold_var` calls
