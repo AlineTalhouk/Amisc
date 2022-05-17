@@ -6,9 +6,7 @@
 \alias{Amisc-package}
 \title{Amisc: Miscellaneous Utility Functions}
 \description{
-Provides some commonly used utility functions used
-    in biostatistics, such as row and column percentages in a table, date
-    formatting, survival functions, and more.
+Provides some commonly used utility functions used in biostatistics, such as row and column percentages in a table, date formatting, survival functions, and more.
 }
 \author{
 \strong{Maintainer}: Derek Chiu \email{dchiu@bccrc.ca}
