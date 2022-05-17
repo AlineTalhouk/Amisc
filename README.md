@@ -1,5 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/AlineTalhouk/Amisc/workflows/R-CMD-check/badge.svg)](https://github.com/AlineTalhouk/Amisc/actions)
+<!-- badges: end -->
 
 # Amisc
 
@@ -44,7 +48,7 @@ Amisc::describeBy(data = mtcars, var.names = "vs", by1 = "cyl",
                   dispersion = "sd", Missing = TRUE, stats = "parametric")
 #> Warning in stats::chisq.test(x = cyl, y = .data$Value, simulate.p.value =
 #> simulate.p.value, : Chi-squared approximation may be incorrect
-#> # A tibble: 3 x 7
+#> # A tibble: 3 × 7
 #>   Variable    Levels `4`      `6`     `8`       Total     PValue  
 #>   <chr>       <chr>  <chr>    <chr>   <chr>     <chr>     <chr>   
 #> 1 "**Total**" N (%)  11 (34%) 7 (22%) 14 (44%)  32 (100%) ""      
@@ -53,10 +57,10 @@ Amisc::describeBy(data = mtcars, var.names = "vs", by1 = "cyl",
 # numerical
 Amisc::describeBy(data = mtcars, var.names = "hp", by1 = "cyl",
                   dispersion = "sd", Missing = TRUE, stats = "parametric")
-#> # A tibble: 3 x 7
-#>   Variable    Levels      `4`        `6`         `8`         Total       PValue 
-#>   <chr>       <chr>       <chr>      <chr>       <chr>       <chr>       <chr>  
-#> 1 "**Total**" N (%)       11 (34%)   7 (22%)     14 (44%)    32 (100%)   ""     
-#> 2 "**hp**"    Mean (sd)   83 (21)    122 (24)    209 (51)    147 (69)    "<0.00~
-#> 3 ""          Median (IQ~ 91 (66 - ~ 110 (110 -~ 192 (176 -~ 123 (96 - ~ ""
+#> # A tibble: 3 × 7
+#>   Variable    Levels       `4`          `6`             `8`         Total PValue
+#>   <chr>       <chr>        <chr>        <chr>           <chr>       <chr> <chr> 
+#> 1 "**Total**" N (%)        11 (34%)     7 (22%)         14 (44%)    32 (… ""    
+#> 2 "**hp**"    Mean (sd)    83 (21)      122 (24)        209 (51)    147 … "<0.0…
+#> 3 ""          Median (IQR) 91 (66 - 96) 110 (110 - 123) 192 (176 -… 123 … ""
 ```

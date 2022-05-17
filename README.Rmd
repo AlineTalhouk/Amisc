@@ -13,6 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/AlineTalhouk/Amisc/workflows/R-CMD-check/badge.svg)](https://github.com/AlineTalhouk/Amisc/actions)
+<!-- badges: end -->
+
 # Amisc
 
 The goal of Amisc is to obtain a descriptive statistics for various columns in a data.frame(df) according to a particular factor column(by1) in df. 
