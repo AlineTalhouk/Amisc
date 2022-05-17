@@ -1,5 +1,3 @@
-context("describeBy")
-
 # Create other variable types
 mtcars$carb <- as.integer(mtcars$carb)
 mtcars$cyl <- as.factor(mtcars$cyl)
@@ -38,6 +36,13 @@ test_that("either row or column percentages can be displayed", {
     describeBy(mtcars, var.names = c("vs", "hp"), by1 = "cyl", per = "col")
   )
   expect_false(isTRUE(all.equal(res_row, res_col)))
+})
+
+test_that("percentages can also be suppressed", {
+  res_none <- suppressWarnings(
+    describeBy(mtcars, var.names = c("vs", "hp"), by1 = "cyl", per = "none")
+  )
+  expect_false(any(grepl("\\%", res_none[4:5, ])))
 })
 
 test_that("variables must be numeric, integer, factor, or character", {
@@ -127,4 +132,9 @@ test_that("variable bolding can be toggled", {
   expect_length(grep("\\*", res[["Variable"]]), 2)
   res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", bold_var = FALSE)
   expect_length(grep("\\*", res[["Variable"]]), 0)
+})
+
+test_that("variable names can be filled", {
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", fill_var = TRUE)
+  expect_false(any(grepl("^$", res[["Variable"]])))
 })
