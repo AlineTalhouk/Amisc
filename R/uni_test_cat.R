@@ -43,15 +43,21 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
         dplyr::mutate(prop = (.data$n / sum(.data$n[.data$Levels != "Total"])))
     }
     # Pivot table and merged counts with proportions
-    val_per %>%
-      dplyr::ungroup() %>%
-      dplyr::transmute(Levels, !!.x, stat = ifelse(
-        !!.x == "Missing",
-        .data$n,
-        paste(.data$n, round_percent(.data$prop, digits), sep = " ")
-      )) %>%
-      tidyr::pivot_longer(!!.x, names_to = "Variable", values_to = "Value") %>%
-      tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
+    if (per != "none") {
+      val_per %>%
+        dplyr::ungroup() %>%
+        dplyr::transmute(Levels, !!.x, stat = ifelse(
+          !!.x == "Missing",
+          .data$n,
+          paste(.data$n, round_percent(.data$prop, digits), sep = " ")
+        )) %>%
+        tidyr::pivot_longer(!!.x, names_to = "Variable", values_to = "Value") %>%
+        tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
+    } else {
+      all %>%
+        tidyr::pivot_longer(vs, names_to = "Variable", values_to = "Value")%>%
+        tidyr::pivot_wider(names_from = "Levels", values_from = "n")
+    }
   })
 
   # Chi-squared test

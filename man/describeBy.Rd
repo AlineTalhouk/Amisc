@@ -60,7 +60,8 @@ significant at \code{sig.level}}
 tests are performed for continuous variables. We use the parametric one-way
 test or the non-parametric Kruskal-Wallis test.}
 
-\item{per}{print column ("col") or row ("row") percentages}
+\item{per}{print column ("col") or row ("row") percentages. Suppress
+percentages with "none".}
 
 \item{simulate.p.value}{passed to \code{chisq.test}. Only relevant for categorical
 variables.}

@@ -24,7 +24,8 @@
 #' @param stats either "parametric" (default) or "non-parametric" univariable
 #'   tests are performed for continuous variables. We use the parametric one-way
 #'   test or the non-parametric Kruskal-Wallis test.
-#' @param per print column ("col") or row ("row") percentages
+#' @param per print column ("col") or row ("row") percentages. Suppress
+#'   percentages with "none".
 #' @param simulate.p.value passed to `chisq.test`. Only relevant for categorical
 #'   variables.
 #' @param B passed to `chisq.test`. Only relevant for categorical variables.
