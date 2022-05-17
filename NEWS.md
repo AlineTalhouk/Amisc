@@ -1,3 +1,7 @@
+# Amisc 0.3.6
+
+* Add option to suppress percentages for categorical variables by setting `per = "none"`, #21
+
 # Amisc 0.3.5
 
 * Add new feature to bold p-values that are significant at a certain level with parameters `bold_pval` and `sig.level`
