@@ -1,5 +1,6 @@
 # Amisc 0.4.0
 
+* Use GitHub Actions for R CMD check and test coverage
 * Update to use latest testthat version 
 * Add option to suppress percentages for categorical variables by setting `per = "none"`, #21
 
