@@ -21,7 +21,6 @@ Imports:
     purrr,
     rlang,
     scales,
-    tibble,
     tidyr
 Suggests: 
     testthat (>= 3.0.0)
