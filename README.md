@@ -3,6 +3,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/AlineTalhouk/Amisc/workflows/R-CMD-check/badge.svg)](https://github.com/AlineTalhouk/Amisc/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/AlineTalhouk/Amisc/branch/master/graph/badge.svg)](https://app.codecov.io/gh/AlineTalhouk/Amisc?branch=master)
 <!-- badges: end -->
 
 # Amisc
