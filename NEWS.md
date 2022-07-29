@@ -1,3 +1,7 @@
+# Amisc 0.4.1
+
+* Fix bug whereby `test = FALSE` would show warning because the "Total" row did not condition on number of columns
+
 # Amisc 0.4.0
 
 * Use GitHub Actions for R CMD check and test coverage
