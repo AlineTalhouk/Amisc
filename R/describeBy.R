@@ -93,7 +93,9 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   if (total != "none") {
     counts <- c(table(facets), nrow(facets))
     percents <- round_percent(counts / nrow(facets), digits)
-    tr <- c("Total", "N (%)", paste(counts, percents), "")
+    tr <- c("Total", "N (%)", paste(counts, percents))
+    if (test)
+      tr <- c(tr, "")
     if (total == "top") {
       final <- rbind(tr, final)
     } else if (total == "bottom") {
