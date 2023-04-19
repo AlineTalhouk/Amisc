@@ -13,10 +13,10 @@ Description: Provides some commonly used utility functions used in
     formatting, survival functions, and more.
 License: GPL-2
 Depends: 
-    R (>= 3.2.0)
+    R (>= 4.2.0)
 Imports:
     dplyr,
-    forcats,
+    forcats (>= 1.0.0),
     magrittr,
     purrr,
     rlang,
