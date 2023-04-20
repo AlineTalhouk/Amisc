@@ -18,14 +18,21 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
     dplyr::filter(!is.na(!!rlang::sym(by))) %>%
     dplyr::mutate_all(as.factor)
 
+  # Repeat digits for each variable if only single value supplied
+  if (length(digits) == 1) {
+    digits <- rlang::rep_along(fac.label, 2)
+  }
+
   # Formatted table with counts and percentages
-  formatted <- purrr::map_dfr(rlang::syms(fac.label), ~ {
+  formatted <- purrr::map2(rlang::syms(fac.label), digits, ~ {
+    # Add explicit missing category, if it exists
+    fac.dat <- fac.dat %>%
+      dplyr::mutate(!!.x := forcats::fct_na_value_to_level(!!.x, "Missing")) %>%
+      droplevels()
     # Group and total categorical counts
     grp <- fac.dat %>%
-      dplyr::mutate(!!.x := forcats::fct_na_value_to_level(!!.x, "Missing")) %>%
       dplyr::count(Levels = !!rlang::sym(by), !!.x, .drop = FALSE)
     tot <- fac.dat %>%
-      dplyr::mutate(!!.x := forcats::fct_na_value_to_level(!!.x, "Missing")) %>%
       dplyr::count(Levels = "Total", !!.x, .drop = FALSE)
     all <- dplyr::bind_rows(grp, tot)
     # Missing cases will only be shown they exist and if isTRUE(Missing)
@@ -49,7 +56,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
         dplyr::transmute(Levels, !!.x, stat = ifelse(
           !!.x == "Missing",
           .data$n,
-          paste(.data$n, round_percent(.data$prop, digits), sep = " ")
+          paste(.data$n, round_percent(.data$prop, .y), sep = " ")
         )) %>%
         tidyr::pivot_longer(!!.x, names_to = "Variable", values_to = "Value") %>%
         tidyr::pivot_wider(names_from = "Levels", values_from = "stat")
@@ -58,7 +65,8 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
         tidyr::pivot_longer(vs, names_to = "Variable", values_to = "Value")%>%
         tidyr::pivot_wider(names_from = "Levels", values_from = "n")
     }
-  })
+  }) %>%
+    purrr::list_rbind()
 
   # Chi-squared test
   if (test) {

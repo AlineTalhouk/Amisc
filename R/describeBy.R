@@ -15,7 +15,10 @@
 #' @param Missing logical; if `TRUE`, shows missing value counts, if they exist
 #' @param test logical; if `TRUE`, univariable tests are performed and a
 #'   `PValue` column is added to the end of the table.
-#' @param digits number of digits to round descriptive statistics
+#' @param digits number of digits to round descriptive statistics. Supply a
+#'   single value to round all variables to the same number of digits, or a
+#'   vector of values to supply different rounding per variable.
+#' @param total.digits number of digits to round the total count percentages
 #' @param p.digits number of digits to round univariable test p-value
 #' @param bold_pval logical; if `TRUE`, p-values are bolded if statistically
 #'   significant at `sig.level`
@@ -46,7 +49,7 @@
 describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        total = c("top", "bottom", "none"), Missing = TRUE,
                        test = TRUE,
-                       digits = 0, p.digits = 3, bold_pval = FALSE,
+                       digits = 0, total.digits = 0, p.digits = 3, bold_pval = FALSE,
                        sig.level = 0.05, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
@@ -62,6 +65,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   if (length(c(num.ind, fac.ind)) == 0) {
     stop("Variable(s) must be of type numeric, integer, factor, or character.")
   }
+  single_digits <- length(digits) == 1
 
   # Separate selected variables into continuous and categorical
   if (length(num.ind) > 0) {
@@ -69,14 +73,24 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     num.var <- names(types)[num.ind]
     num.label <- var.labels[num.ind]
     num.dat <- cbind(var.dat[, num.var, drop = FALSE], facets)
-    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, dispersion = dispersion, stats = stats)
+    if (single_digits) {
+      num.digits <- digits
+    } else {
+      num.digits <- digits[num.ind]
+    }
+    num.table <- uni_test_cont(num.dat, num.var, num.label, by1, Missing = Missing, test = test, digits = num.digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, dispersion = dispersion, stats = stats)
   }
   if (length(fac.ind) > 0) {
     # Categorical: character and factor types
     fac.var <- names(types)[fac.ind]
     fac.label <- var.labels[fac.ind]
     fac.dat <- cbind(var.dat[, fac.var, drop = FALSE], facets)
-    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, test = test, digits = digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, per = per, simulate.p.value = simulate.p.value, B = B)
+    if (single_digits) {
+      fac.digits <- digits
+    } else {
+      fac.digits <- digits[fac.ind]
+    }
+    fac.table <- uni_test_cat(fac.dat, fac.var, fac.label, by1, Missing = Missing, test = test, digits = fac.digits, p.digits = p.digits, bold_pval = bold_pval, sig.level = sig.level, per = per, simulate.p.value = simulate.p.value, B = B)
   }
 
   # Combine summary statistics
@@ -92,7 +106,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   total <- match.arg(total)
   if (total != "none") {
     counts <- c(table(facets), nrow(facets))
-    percents <- round_percent(counts / nrow(facets), digits)
+    percents <- round_percent(counts / nrow(facets), total.digits)
     tr <- c("Total", "N (%)", paste(counts, percents))
     if (test)
       tr <- c(tr, "")
