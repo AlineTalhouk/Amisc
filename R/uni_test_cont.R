@@ -18,10 +18,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
     dplyr::filter(!is.na(!!rlang::sym(by)))
   group_stats <- df %>%
     dplyr::group_by(Levels = !!rlang::sym(by)) %>%
-    dplyr::summarize(dplyr::across(where(is.numeric), ~ list(sum_stats_cont(.))))
+    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
   total_stats <- df %>%
     dplyr::group_by(Levels = "Total") %>%
-    dplyr::summarize(dplyr::across(where(is.numeric), ~ list(sum_stats_cont(.))))
+    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
 
   # Combine group/total stats and reorder Variable by num.label
   # Place total stats per variable after group stats
