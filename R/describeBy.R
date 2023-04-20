@@ -121,7 +121,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   if (fill_var) {
     final <- final %>%
       dplyr::mutate(Variable = dplyr::na_if(.data$Variable, "")) %>%
-      tidyr::fill(.data$Variable)
+      tidyr::fill("Variable")
   }
 
   # Bold the variable names

@@ -34,12 +34,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
     ) %>%
     tidyr::unnest(stats) %>%
     dplyr::arrange(.data$Variable) %>%
-    dplyr::select(.data$Variable, dplyr::everything())
+    dplyr::select("Variable", dplyr::everything())
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
   if (sum(raw[["Missing"]]) == 0 | !Missing) {
-    raw <- dplyr::select(raw, -.data$Missing)
+    raw <- dplyr::select(raw, -"Missing")
   }
 
   # Choose dispersion parameter
@@ -101,7 +101,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
   # Remove "first" column and rename stats to Levels
   formatted <- formatted %>%
     dplyr::select(-"first") %>%
-    dplyr::rename(!!"Levels" := .data$Stats)
+    dplyr::rename(!!"Levels" := "Stats")
 
   # Indicate missing inputs if applicable
   n_missing <- nrow(num.dat) - sum(table(df[, by]))
