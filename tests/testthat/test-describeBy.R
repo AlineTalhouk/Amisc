@@ -138,3 +138,10 @@ test_that("variable names can be filled", {
   res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", fill_var = TRUE)
   expect_false(any(grepl("^$", res[["Variable"]])))
 })
+
+test_that("separate rounding digits can be supplied", {
+  expect_error(suppressWarnings(
+    describeBy(mtcars, var.names = c("qsec", "carb", "gear"), by1 = "cyl",
+               digits = c(0, 1, 1))),
+    NA)
+})

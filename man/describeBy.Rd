@@ -14,6 +14,7 @@ describeBy(
   Missing = TRUE,
   test = TRUE,
   digits = 0,
+  total.digits = 0,
   p.digits = 3,
   bold_pval = FALSE,
   sig.level = 0.05,
@@ -45,7 +46,11 @@ describeBy(
 \item{test}{logical; if \code{TRUE}, univariable tests are performed and a
 \code{PValue} column is added to the end of the table.}
 
-\item{digits}{number of digits to round descriptive statistics}
+\item{digits}{number of digits to round descriptive statistics. Supply a
+single value to round all variables to the same number of digits, or a
+vector of values to supply different rounding per variable.}
+
+\item{total.digits}{number of digits to round the total count percentages}
 
 \item{p.digits}{number of digits to round univariable test p-value}
 

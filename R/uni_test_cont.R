@@ -18,10 +18,10 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
     dplyr::filter(!is.na(!!rlang::sym(by)))
   group_stats <- df %>%
     dplyr::group_by(Levels = !!rlang::sym(by)) %>%
-    dplyr::summarize_if(is.numeric, ~ list(sum_stats_cont(.)))
+    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
   total_stats <- df %>%
     dplyr::group_by(Levels = "Total") %>%
-    dplyr::summarize_if(is.numeric, ~ list(sum_stats_cont(.)))
+    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
 
   # Combine group/total stats and reorder Variable by num.label
   # Place total stats per variable after group stats
@@ -34,12 +34,12 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
     ) %>%
     tidyr::unnest(stats) %>%
     dplyr::arrange(.data$Variable) %>%
-    dplyr::select(.data$Variable, dplyr::everything())
+    dplyr::select("Variable", dplyr::everything())
 
   # If we cannot detect any missing element or we do not require the missing
   # parts, the "Missing" variable will be removed
   if (sum(raw[["Missing"]]) == 0 | !Missing) {
-    raw <- dplyr::select(raw, -.data$Missing)
+    raw <- dplyr::select(raw, -"Missing")
   }
 
   # Choose dispersion parameter
@@ -52,6 +52,11 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
            disp_name <- "Mean (se)"
            disp_var <- "SEM"
          })
+
+  # Repeat digits for each variable if multiple values supplied
+  if (length(digits) > 1) {
+    digits <- unlist(purrr::map2(digits, table(raw[["Variable"]]), rep_len))
+  }
 
   # Formatted table with selected dispersion variable
   formatted <- raw %>%
@@ -96,7 +101,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
   # Remove "first" column and rename stats to Levels
   formatted <- formatted %>%
     dplyr::select(-"first") %>%
-    dplyr::rename(!!"Levels" := .data$Stats)
+    dplyr::rename(!!"Levels" := "Stats")
 
   # Indicate missing inputs if applicable
   n_missing <- nrow(num.dat) - sum(table(df[, by]))
