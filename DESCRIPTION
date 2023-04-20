@@ -1,8 +1,8 @@
 Type: Package
 Package: Amisc
 Title: Miscellaneous Utility Functions
-Version: 0.4.1
-Date: 2022-07-29
+Version: 0.5.0
+Date: 2023-04-19
 Authors@R: c(
     person("Aline", "Talhouk", , "atalhouk@bccrc.ca", role = "aut"),
     person("Derek", "Chiu", , "dchiu@bccrc.ca", role = c("aut", "cre")),
@@ -28,4 +28,4 @@ Suggests:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3

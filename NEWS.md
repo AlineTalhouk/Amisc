@@ -1,3 +1,8 @@
+# Amisc 0.5.0
+
+* Allow different rounding of `digits` for each variable
+* Separate parameter for rounding of `total.digits`
+
 # Amisc 0.4.1
 
 * Fix bug whereby `test = FALSE` would show warning because the "Total" row did not condition on number of columns
