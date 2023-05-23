@@ -1,8 +1,8 @@
 Type: Package
 Package: Amisc
 Title: Miscellaneous Utility Functions
-Version: 0.5.0
-Date: 2023-04-19
+Version: 0.5.1
+Date: 2023-05-23
 Authors@R: c(
     person("Aline", "Talhouk", , "atalhouk@bccrc.ca", role = "aut"),
     person("Derek", "Chiu", , "dchiu@bccrc.ca", role = c("aut", "cre")),
