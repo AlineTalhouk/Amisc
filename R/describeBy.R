@@ -37,6 +37,9 @@
 #'   in bold.
 #' @param fill_var logical; if `TRUE`, the `Variable` name is repeated for every
 #'   row it pertains to. If `FALSE`, the name is only shown when it changes.
+#' @param fill_pval logical; if `TRUE`, the `PValue` value is repeated for every
+#'   variable it is associated with. If `FALSE`, the value is only shown once
+#'   per variable name.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
@@ -53,7 +56,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        sig.level = 0.05, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
-                       bold_var = TRUE, fill_var = FALSE) {
+                       bold_var = TRUE, fill_var = FALSE, fill_pval = FALSE) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -122,6 +125,13 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     final <- final %>%
       dplyr::mutate(Variable = dplyr::na_if(.data$Variable, "")) %>%
       tidyr::fill("Variable")
+  }
+
+  # Fill the p-values
+  if (fill_pval) {
+    final <- final %>%
+      dplyr::mutate(PValue = dplyr::na_if(.data$PValue, "")) %>%
+      tidyr::fill("PValue")
   }
 
   # Bold the variable names
