@@ -13,19 +13,18 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
   check_factor(num.dat[, by])
 
   # Group and total continuous stats
+  # Combine group/total stats and reorder Variable by num.label
+  # Place total stats per variable after group stats
   df <- num.dat %>%
     dplyr::rename_at(num.var, ~ num.label) %>%
     dplyr::filter(!is.na(!!rlang::sym(by)))
-  group_stats <- df %>%
-    dplyr::group_by(Levels = !!rlang::sym(by)) %>%
-    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
-  total_stats <- df %>%
-    dplyr::group_by(Levels = "Total") %>%
-    dplyr::summarize(dplyr::across(dplyr::where(is.numeric), ~ list(sum_stats_cont(.))))
+  groups <- df %>% dplyr::mutate(Levels = !!rlang::sym(by))
+  totals <- df %>% dplyr::mutate(Levels = "Total")
 
-  # Combine group/total stats and reorder Variable by num.label
-  # Place total stats per variable after group stats
-  raw <- rbind(group_stats, total_stats) %>%
+  raw <- rbind(groups, totals) %>%
+    dplyr::group_by(Levels) %>%
+    dplyr::summarize(dplyr::across(dplyr::where(is.numeric),
+                                   ~ list(sum_stats_cont(.)))) %>%
     tidyr::pivot_longer(
       -"Levels",
       names_to = "Variable",
