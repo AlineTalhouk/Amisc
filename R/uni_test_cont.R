@@ -22,7 +22,7 @@ uni_test_cont <- function(num.dat, num.var, num.label, by, Missing, test,
   totals <- df %>% dplyr::mutate(Levels = "Total")
 
   raw <- rbind(groups, totals) %>%
-    dplyr::group_by(Levels) %>%
+    dplyr::group_by(.data$Levels) %>%
     dplyr::summarize(dplyr::across(dplyr::where(is.numeric),
                                    ~ list(sum_stats_cont(.)))) %>%
     tidyr::pivot_longer(
