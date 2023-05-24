@@ -134,13 +134,9 @@ test_that("variable bolding can be toggled", {
   expect_length(grep("\\*", res[["Variable"]]), 0)
 })
 
-test_that("variable names can be filled", {
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", fill_var = TRUE)
+test_that("variable names and p-values can be filled", {
+  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", fill = TRUE)
   expect_false(any(grepl("^$", res[["Variable"]])))
-})
-
-test_that("p-values can be filled", {
-  res <- describeBy(mtcars, var.names = "hp", by1 = "cyl", fill_pval = TRUE)
   expect_length(which(res[["PValue"]] == "<0.001"), 2)
 })
 

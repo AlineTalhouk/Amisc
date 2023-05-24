@@ -35,11 +35,9 @@
 #' @param bold_var logical; if `TRUE`, the `Variable` names are wrapped in
 #'   double asterisks. If the table is parsed by pandoc the variable names are
 #'   in bold.
-#' @param fill_var logical; if `TRUE`, the `Variable` name is repeated for every
-#'   row it pertains to. If `FALSE`, the name is only shown when it changes.
-#' @param fill_pval logical; if `TRUE`, the `PValue` value is repeated for every
-#'   variable it is associated with. If `FALSE`, the value is only shown once
-#'   per variable name.
+#' @param fill logical; if `TRUE`, the `Variable` and `PValue` columns are
+#'   repeated for every row it pertains to. If `FALSE`, the value is only shown
+#'   when it changes.
 #' @return A table with descriptive statistics for continuous and categorical
 #'   variables and relevant univariable association tests
 #' @author Aline Talhouk
@@ -56,7 +54,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
                        sig.level = 0.05, dispersion = c("sd", "se"),
                        stats = c("parametric", "non-parametric"),
                        per = "col", simulate.p.value = FALSE, B = 2000,
-                       bold_var = TRUE, fill_var = FALSE, fill_pval = FALSE) {
+                       bold_var = TRUE, fill = FALSE) {
   # Extract variables of interest
   var.dat <- data[, var.names, drop = FALSE]
   facets <- data[, c(by1, by2), drop = FALSE]
@@ -120,21 +118,23 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
     }
   }
 
-  # Fill the variable names
-  if (fill_var) {
+  # Fill the variable names and p-values (if doing statistical tests)
+  if (fill) {
     final <- final %>%
       dplyr::mutate(Variable = dplyr::na_if(.data$Variable, "")) %>%
       tidyr::fill("Variable")
-  }
 
-  # Fill the p-values
-  if (fill_pval & test) {
-    final <- final %>%
-      dplyr::mutate(PValue = ifelse(Variable == "Total",
-                                    PValue,
-                                    dplyr::na_if(.data$PValue, ""))) %>%
-      dplyr::group_by(Variable) %>%
-      tidyr::fill("PValue")
+    if (test) {
+      final <- final %>%
+        dplyr::mutate(PValue = ifelse(
+          .data$Variable == "Total",
+          .data$PValue,
+          dplyr::na_if(.data$PValue, "")
+        )) %>%
+        dplyr::group_by(.data$Variable) %>%
+        tidyr::fill("PValue") %>%
+        dplyr::ungroup()
+    }
   }
 
   # Bold the variable names

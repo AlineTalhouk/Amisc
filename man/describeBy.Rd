@@ -24,8 +24,7 @@ describeBy(
   simulate.p.value = FALSE,
   B = 2000,
   bold_var = TRUE,
-  fill_var = FALSE,
-  fill_pval = FALSE
+  fill = FALSE
 )
 }
 \arguments{
@@ -78,12 +77,9 @@ variables.}
 double asterisks. If the table is parsed by pandoc the variable names are
 in bold.}
 
-\item{fill_var}{logical; if \code{TRUE}, the \code{Variable} name is repeated for every
-row it pertains to. If \code{FALSE}, the name is only shown when it changes.}
-
-\item{fill_pval}{logical; if \code{TRUE}, the \code{PValue} value is repeated for every
-variable it is associated with. If \code{FALSE}, the value is only shown once
-per variable name.}
+\item{fill}{logical; if \code{TRUE}, the \code{Variable} and \code{PValue} columns are
+repeated for every row it pertains to. If \code{FALSE}, the value is only shown
+when it changes.}
 }
 \value{
 A table with descriptive statistics for continuous and categorical
