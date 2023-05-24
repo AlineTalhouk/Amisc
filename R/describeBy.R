@@ -131,6 +131,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   if (fill_pval & test) {
     final <- final %>%
       dplyr::mutate(PValue = dplyr::na_if(.data$PValue, "")) %>%
+      dplyr::group_by(Variable) %>%
       tidyr::fill("PValue")
   }
 
