@@ -128,7 +128,7 @@ describeBy <- function(data, var.names, var.labels = var.names, by1, by2 = NULL,
   }
 
   # Fill the p-values
-  if (fill_pval) {
+  if (fill_pval & test) {
     final <- final %>%
       dplyr::mutate(PValue = dplyr::na_if(.data$PValue, "")) %>%
       tidyr::fill("PValue")
