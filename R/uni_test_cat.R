@@ -82,7 +82,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
       dplyr::summarize(
         PValue = ifelse(
           nlevels(factor(.data$Value)) == 1,
-          NA_character_,
+          NA_real_,
           stats::chisq.test(
             x = !!rlang::sym(by),
             y = .data$Value,
