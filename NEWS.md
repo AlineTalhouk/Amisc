@@ -1,3 +1,11 @@
+# Amisc 0.6.1
+
+* Fix specification of `digits` for each variable
+
+# Amisc 0.6.0
+
+* Internal fixes
+
 # Amisc 0.5.0
 
 * Allow different rounding of `digits` for each variable

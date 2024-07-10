@@ -20,7 +20,7 @@ uni_test_cat <- function(fac.dat, fac.var, fac.label, by, Missing, test,
 
   # Repeat digits for each variable if only single value supplied
   if (length(digits) == 1) {
-    digits <- rlang::rep_along(fac.label, 2)
+    digits <- rlang::rep_along(fac.label, digits)
   }
 
   # Formatted table with counts and percentages
